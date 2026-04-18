@@ -11,7 +11,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/你的用户名/trae-agent-skills.git
+git clone https://github.com/yecllsl/trae-agent-skills.git
 
 # 复制到 Trae 配置目录（Windows）
 # 注意：请根据实际路径调整

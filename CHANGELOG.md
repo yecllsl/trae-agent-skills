@@ -28,5 +28,5 @@
   - SKILL_DEVELOPMENT_GUIDE.md
   - Skill 验证脚本
 
-[未发布]: https://github.com/你的用户名/trae-agent-skills/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/你的用户名/trae-agent-skills/releases/tag/v1.0.0
+[未发布]: https://github.com/yecllsl/trae-agent-skills/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/yecllsl/trae-agent-skills/releases/tag/v1.0.0
