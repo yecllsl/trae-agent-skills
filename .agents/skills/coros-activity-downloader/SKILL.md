@@ -1,7 +1,8 @@
----
+***
+
 name: "coros-activity-downloader"
 description: "Downloads running activity records from COROS Training Hub in FIT format. Invoke when user needs to download COROS activity data for analysis or backup."
----
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # COROS Activity Downloader
 
@@ -47,6 +48,7 @@ This skill enables automated downloading of running activity records from the CO
 ## Prerequisites and Dependencies
 
 ### System Requirements
+
 - **Operating System**: Windows 10/11 with PowerShell 7+
 - **Python**: Python 3.6+ (uses only standard library modules)
 - **Browser**: Chrome browser with Chrome DevTools MCP access
@@ -56,17 +58,21 @@ This skill enables automated downloading of running activity records from the CO
   - `https://oss.coros.com` (COROS file storage)
 
 ### Authentication Requirements
+
 - Valid COROS account with logged-in session
 - Browser cookies must contain valid access tokens
 - Region setting must be configured (China region uses `teamcnapi.coros.com`)
 
 ### Required Tools
+
 - Chrome DevTools MCP for browser automation
 - Python 3.6+ for download operations
 - Write access to target download directory
 
 ### Script Location
+
 The download script is bundled with this skill at:
+
 ```
 skills/coros-activity-downloader/scripts/download_coros.py
 ```
@@ -90,6 +96,7 @@ mcp_Chrome_DevTools_MCP_take_snapshot
 ```
 
 Expected elements:
+
 - Activity list table with columns: Date, Name, Distance, Time, Pace, Heart Rate
 - Activity count indicator (e.g., "669个活动")
 
@@ -146,22 +153,23 @@ python -c "import os; dl=os.path.expanduser('~/.nanobot-runner/download'); [prin
 ## Download Script Reference
 
 ### Location
+
 ```
 skills/coros-activity-downloader/scripts/download_coros.py
 ```
 
 ### CLI Arguments
 
-| Argument | Type | Default | Description |
-|----------|------|---------|-------------|
-| `--count` | int | 10 | Number of activities to download |
-| `--sport-type` | int | 100 | Sport type filter (100=running) |
-| `--download-dir` | string | `~/.nanobot-runner/download` | Target download directory |
-| `--user-id` | string | (auto) | COROS user ID |
-| `--label-ids` | string | None | Comma-separated labelIds (bypasses browser) |
-| `--activities-json` | string | None | JSON string of activities from browser extraction |
-| `--validate-only` | flag | false | Only validate existing files, skip download |
-| `--json-output` | flag | false | Output results as JSON |
+| Argument            | Type   | Default                                   | Description                                       |
+| ------------------- | ------ | ----------------------------------------- | ------------------------------------------------- |
+| `--count`           | int    | 10                                        | Number of activities to download                  |
+| `--sport-type`      | int    | 100                                       | Sport type filter (100=running)                   |
+| `--download-dir`    | string | `D:/yecll/Downloads/coros/test-fit-files` | Target download directory                         |
+| `--user-id`         | string | (auto)                                    | COROS user ID                                     |
+| `--label-ids`       | string | None                                      | Comma-separated labelIds (bypasses browser)       |
+| `--activities-json` | string | None                                      | JSON string of activities from browser extraction |
+| `--validate-only`   | flag   | false                                     | Only validate existing files, skip download       |
+| `--json-output`     | flag   | false                                     | Output results as JSON                            |
 
 ### Duplicate Prevention Mechanism
 
@@ -177,6 +185,7 @@ The script uses `labelId` as the unique identifier for duplicate detection:
 3. **Compare and skip**: If labelId exists, skip download
 
 **Key benefits**:
+
 - O(1) lookup per file using hash set
 - Independent of filename naming convention
 - Handles partial downloads and interrupted sessions
@@ -185,6 +194,7 @@ The script uses `labelId` as the unique identifier for duplicate detection:
 ### File Integrity Validation
 
 After download, each file is validated:
+
 - Minimum file size: > 1KB (1024 bytes)
 - Empty file detection
 - Files failing validation are flagged but not deleted
@@ -198,18 +208,23 @@ Built-in delay of 500ms between downloads to avoid COROS server throttling.
 ### Common Issues
 
 #### 1. No Activities Provided
+
 ```
 ERROR: No activities specified. Use --activities-json, --label-ids, or pipe activities from browser.
 ```
+
 **Fix**: Extract activities from browser first (Step 3) or use `--label-ids`.
 
 #### 2. HTTP 404 - File Not Found
+
 **Possible causes**:
+
 - Activity was deleted from COROS
 - Incorrect userId
 - File not yet processed by COROS servers
 
 **Resolution**:
+
 ```bash
 # Try alternative API endpoint
 python -c "
@@ -222,14 +237,17 @@ print(resp['data']['fileUrl'])
 ```
 
 #### 3. HTTP 403 - Access Denied
+
 **Cause**: Activity is private or session expired
 
 **Resolution**: Refresh browser session at `https://t.coros.com/admin/views/activities`
 
 #### 4. Network Timeout
+
 **Resolution**: The script has built-in 30s timeout. Retries are not automatic; simply re-run the script - it will skip already-downloaded files.
 
 #### 5. Corrupted/Small Files
+
 Files < 1KB are flagged during validation. Delete and re-run to retry.
 
 ## Input/Output Specifications
@@ -308,24 +326,22 @@ Files < 1KB are flagged during validation. Delete and re-run to retry.
 1. **File Count**: All requested activities downloaded
    - Expected: `downloadedCount == requestedCount`
    - Acceptable: `downloadedCount >= requestedCount * 0.8` (80% success rate)
-
 2. **File Format**: All files are valid .fit format
    - Extension: `.fit`
    - Minimum size: > 1KB
    - No zero-byte files
-
 3. **File Integrity**: Files are complete and not corrupted
    - File size matches expected range (10KB - 500KB for typical activities)
    - No duplicate downloads
 
 ### Quality Metrics
 
-| Metric | Target | Acceptable | Critical |
-|--------|--------|------------|----------|
-| Success Rate | 100% | ≥ 90% | < 80% |
-| Download Speed | ≥ 1 file/sec | ≥ 0.5 file/sec | < 0.2 file/sec |
-| File Size Range | 10KB-500KB | 1KB-1MB | < 1KB or > 1MB |
-| Corruption Rate | 0% | < 5% | ≥ 5% |
+| Metric          | Target       | Acceptable     | Critical       |
+| --------------- | ------------ | -------------- | -------------- |
+| Success Rate    | 100%         | ≥ 90%          | < 80%          |
+| Download Speed  | ≥ 1 file/sec | ≥ 0.5 file/sec | < 0.2 file/sec |
+| File Size Range | 10KB-500KB   | 1KB-1MB        | < 1KB or > 1MB |
+| Corruption Rate | 0%           | < 5%           | ≥ 5%           |
 
 ## Usage Examples
 
@@ -408,22 +424,18 @@ python skills/coros-activity-downloader/scripts/download_coros.py --count 15 --a
    - Requires active browser session with valid cookies
    - Access tokens expire and need refresh
    - Cannot download without prior login
-
 2. **Regional Restrictions**
    - China region: Uses `oss.coros.com` for file downloads
    - Global region: May use different CDN endpoints
    - URLs and user IDs are region-specific
-
 3. **File Access Limitations**
    - Only activities owned by the logged-in user can be downloaded
    - Private activities from other users are inaccessible
    - Deleted activities cannot be recovered
-
 4. **Rate Limiting**
    - COROS API may throttle requests
    - Built-in 500ms delay between downloads
-   - Recommended maximum: ~100 activities per minute
-
+   - Recommended maximum: \~100 activities per minute
 5. **Browser Automation Constraints**
    - Chrome DevTools MCP must be available
    - Browser must remain open during activity extraction
@@ -432,16 +444,20 @@ python skills/coros-activity-downloader/scripts/download_coros.py --count 15 --a
 ### Edge Cases
 
 #### Case 1: Activity Without GPS Data
+
 Indoor treadmill runs will still produce FIT files containing heart rate, distance (if footpod connected), time, and calories - just no GPS coordinates.
 
 #### Case 2: Duplicate Activity Names
+
 The script appends `labelId` to filenames to ensure uniqueness:
+
 ```
 45分钟基础训练_476456369027842849.fit
 45分钟基础训练_476276321308148214.fit
 ```
 
 #### Case 3: Very Large Activity Files
+
 Ultra-long activities (100+ km, 10+ hours) may produce files > 500KB. These are valid but flagged for review if > 1MB.
 
 ### Performance Considerations
@@ -449,15 +465,13 @@ Ultra-long activities (100+ km, 10+ hours) may produce files > 500KB. These are 
 1. **Download Speed**
    - Typical: 0.5-2 files per second
    - Depends on: Network speed, file size, server load
-
 2. **Memory Usage**
    - Each file loaded into memory before saving
-   - Memory footprint: ~1-2 MB per active download
-
+   - Memory footprint: \~1-2 MB per active download
 3. **Storage Requirements**
    - Average activity: 50-150 KB
-   - 10 activities: ~1 MB
-   - 100 activities: ~10 MB
+   - 10 activities: \~1 MB
+   - 100 activities: \~10 MB
 
 ### Security Considerations
 
@@ -465,11 +479,9 @@ Ultra-long activities (100+ km, 10+ hours) may produce files > 500KB. These are 
    - Never hardcode access tokens in scripts
    - The download script uses only public CDN URLs (no authentication needed for own files)
    - Browser session is only used for activity list extraction
-
 2. **File Permissions**
    - FIT files contain personal health data
    - Consider encryption for long-term storage
-
 3. **API Usage**
    - Respect COROS terms of service
    - Rate limit requests to avoid server overload
@@ -479,10 +491,12 @@ Ultra-long activities (100+ km, 10+ hours) may produce files > 500KB. These are 
 ### Why Python Over PowerShell?
 
 During development, PowerShell scripts faced significant issues with:
+
 - **File encoding**: Chinese characters in activity names caused syntax errors when PowerShell parsed `.ps1` files without BOM
 - **Command-line escaping**: Complex quote escaping made inline execution unreliable
 
 Python 3.6+ was chosen because:
+
 - Native UTF-8 support (no BOM issues)
 - Standard library only (no `pip install` needed)
 - Cleaner syntax for HTTP operations and JSON handling
@@ -504,16 +518,17 @@ download_coros.py
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-04-17 | Initial release |
-| 1.0.1 | 2026-04-17 | Added error handling and validation |
-| 1.0.2 | 2026-04-17 | Added intelligent duplicate prevention using labelId extraction |
-| 2.0.0 | 2026-04-17 | **Major rewrite**: Migrated primary download engine from PowerShell to Python; bundled script with skill; added CLI argument parsing; improved duplicate detection; added JSON output mode |
+| Version | Date       | Changes                                                                                                                                                                                    |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1.0.0   | 2026-04-17 | Initial release                                                                                                                                                                            |
+| 1.0.1   | 2026-04-17 | Added error handling and validation                                                                                                                                                        |
+| 1.0.2   | 2026-04-17 | Added intelligent duplicate prevention using labelId extraction                                                                                                                            |
+| 2.0.0   | 2026-04-17 | **Major rewrite**: Migrated primary download engine from PowerShell to Python; bundled script with skill; added CLI argument parsing; improved duplicate detection; added JSON output mode |
 
 ## Support and Troubleshooting
 
 For issues or questions:
+
 1. Check error messages in Python output
 2. Verify browser session is active
 3. Ensure network connectivity to COROS servers
@@ -523,7 +538,9 @@ For issues or questions:
 ## License and Usage Terms
 
 This skill is for personal use only. Users must:
+
 - Have valid COROS account
 - Own the activities being downloaded
 - Comply with COROS Terms of Service
 - Not redistribute downloaded data without permission
+
