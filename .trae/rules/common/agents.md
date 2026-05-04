@@ -1,3 +1,8 @@
+---
+alwaysApply: false
+paths:
+  - "**/*"
+---
 # 智能体编排
 
 ## 可用智能体
