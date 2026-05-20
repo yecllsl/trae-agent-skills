@@ -50,10 +50,12 @@ python scripts/download_coros.py --count 10 --activities-json '<JSON>' --json-ou
 | `--count` | int | 10 | 下载数量 |
 | `--activities-json` | string | - | 活动列表JSON（从浏览器提取） |
 | `--label-ids` | string | - | 直接指定labelId（逗号分隔） |
-| `--download-dir` | string | `~/.nanobot-runner/download` | 下载目录 |
+| `--user-id` | string | config.json 配置值 | COROS 用户 ID |
+| `--download-dir` | string | config.json 配置值 | 下载目录 |
 | `--sport-type` | int | 100 | 运动类型（100=跑步） |
 | `--validate-only` | flag | false | 仅验证，不下载 |
 | `--json-output` | flag | false | JSON格式输出 |
+| `--show-config` | flag | false | 显示当前配置并退出 |
 
 ## 依赖要求
 
@@ -63,9 +65,9 @@ python scripts/download_coros.py --count 10 --activities-json '<JSON>' --json-ou
 
 ## 工作原理
 
-1. **浏览器提取** - 使用 Chrome DevTools MCP 从 COROS 网页提取活动列表
+1. **浏览器提取** - 使用 Chrome DevTools MCP 从 COROS 网页提取活动列表（labelId、name、sportType）
 2. **智能匹配** - 扫描本地已有文件，跳过重复
-3. **下载执行** - 从 COROS CDN 下载 FIT 文件
+3. **下载执行** - 脚本通过 HTTP 直接请求 COROS CDN 下载 FIT 文件
 4. **完整性检查** - 验证文件大小和有效性
 
 ## 文件命名
