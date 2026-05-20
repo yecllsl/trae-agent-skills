@@ -19,34 +19,54 @@ import time
 from datetime import datetime
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
+from pathlib import Path
 
 
 # ============================================================
-# Configuration (can be overridden by CLI arguments)
+# Configuration
 # ============================================================
-DEFAULT_USER_ID = "445542372294541312"
-DEFAULT_DOWNLOAD_DIR = os.path.expanduser("D:/yecll/Downloads/coros/test-fit-files")
-DEFAULT_SPORT_TYPE = 100  # 100 = Running
-DEFAULT_COUNT = 10
-DOWNLOAD_DELAY_MS = 500
-MIN_FILE_SIZE = 1024  # 1KB
+
+# 获取脚本所在目录，用于查找 config.json
+SCRIPT_DIR = Path(__file__).parent.resolve()
+CONFIG_FILE = SCRIPT_DIR.parent / "config.json"
+
+# 默认配置
+DEFAULT_CONFIG = {
+    "userId": "445542372294541312",
+    "downloadDir": "D:/yecll/Downloads/coros/test-fit-files",
+    "sportType": 100,
+    "defaultCount": 10,
+    "downloadDelayMs": 500,
+    "minFileSize": 1024
+}
+
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 
+def load_config():
+    """加载配置文件，如果不存在则使用默认配置"""
+    config = DEFAULT_CONFIG.copy()
+    if CONFIG_FILE.exists():
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                user_config = json.load(f)
+                config.update(user_config)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"警告: 无法加载配置文件 {CONFIG_FILE}: {e}", file=sys.stderr)
+    return config
+
+
 def setup_download_dir(path):
-    """Create download directory if it doesn't exist."""
+    """创建下载目录（如果不存在）"""
     os.makedirs(path, exist_ok=True)
     return path
 
 
 def scan_existing_files(download_dir):
     """
-    Scan existing FIT files and extract their labelIds.
+    扫描现有 FIT 文件并提取其 labelId。
     
-    Uses regex-like logic to extract labelId from filenames.
-    Handles ANY naming convention: Chinese, English, mixed.
-    
-    Examples:
+    支持任意命名格式：
         "上海市跑步_476786357002338514.fit" -> "476786357002338514"
         "Shanghai_Run_476786357002338514.fit" -> "476786357002338514"
         "476786357002338514.fit" -> "476786357002338514"
@@ -63,7 +83,7 @@ def scan_existing_files(download_dir):
     for f in files:
         base = f.replace('.fit', '')
         if '_' in base:
-            # Extract last segment after underscore (the labelId)
+            # 提取下划线后的最后一段（labelId）
             lid = base.rsplit('_', 1)[-1]
             if lid.isdigit():
                 fpath = os.path.join(download_dir, f)
@@ -74,7 +94,7 @@ def scan_existing_files(download_dir):
                     "size_kb": round(size / 1024, 2)
                 }
         elif base.isdigit():
-            # File is just labelId.fit
+            # 文件名就是 labelId.fit
             fpath = os.path.join(download_dir, f)
             size = os.path.getsize(fpath)
             existing[base] = {
@@ -87,12 +107,12 @@ def scan_existing_files(download_dir):
 
 
 def build_download_url(user_id, label_id):
-    """Build the download URL for a FIT file."""
+    """构建 FIT 文件下载 URL"""
     return f"https://oss.coros.com/fit/{user_id}/{label_id}.fit"
 
 
 def sanitize_filename(name):
-    """Remove or replace characters invalid in Windows filenames."""
+    """移除或替换 Windows 文件名中的非法字符"""
     for ch in r'\/:*?"<>|':
         name = name.replace(ch, '_')
     return name
@@ -100,7 +120,7 @@ def sanitize_filename(name):
 
 def download_file(url, filepath):
     """
-    Download a file from URL to filepath.
+    从 URL 下载文件到指定路径。
     
     Returns:
         tuple: (success: bool, size_bytes: int, error_msg: str)
@@ -119,13 +139,13 @@ def download_file(url, filepath):
         return False, 0, str(e)
 
 
-def validate_fit_file(filepath):
+def validate_fit_file(filepath, min_size):
     """
-    Basic FIT file integrity check.
+    FIT 文件完整性基础检查。
     
-    Checks:
-        - File size >= MIN_FILE_SIZE
-        - File is not empty
+    检查项：
+        - 文件大小 >= min_size
+        - 文件不为空
     
     Returns:
         tuple: (valid: bool, issues: list[str])
@@ -134,104 +154,80 @@ def validate_fit_file(filepath):
     size = os.path.getsize(filepath)
     
     if size == 0:
-        issues.append("File is empty")
-    elif size < MIN_FILE_SIZE:
-        issues.append(f"File too small ({size} bytes, minimum {MIN_FILE_SIZE})")
+        issues.append("文件为空")
+    elif size < min_size:
+        issues.append(f"文件过小 ({size} bytes, 最小 {min_size})")
     
     return len(issues) == 0, issues
 
 
-def get_activities_from_browser(count=10):
-    """
-    Placeholder: In actual usage, extract activity list from browser
-    using Chrome DevTools MCP evaluate_script.
-    
-    This function documents the JavaScript extraction pattern.
-    
-    JavaScript to run in browser:
-    ```javascript
-    () => {
-      const activities = [];
-      const links = document.querySelectorAll('a[href*="activity-detail?labelId="]');
-      
-      links.forEach(link => {
-        const url = new URL(link.href);
-        const labelId = url.searchParams.get('labelId');
-        const sportType = url.searchParams.get('sportType');
-        
-        if (sportType === '100' && labelId) {
-          const nameLink = link.closest('tr')?.querySelector('a[href*="activity-detail"]');
-          const name = nameLink ? nameLink.innerText.trim() : 'Running';
-          
-          if (!activities.find(a => a.labelId === labelId)) {
-            activities.push({ labelId, name: name || 'Running', sportType: 100 });
-          }
-        }
-      });
-      
-      return activities.slice(0, 15);
-    }
-    ```
-    
-    Returns the activities JSON that would be returned by the browser.
-    """
-    # This is a documentation placeholder. Actual data comes from browser extraction.
-    return []
-
-
 def main():
+    # 加载配置
+    config = load_config()
+    
     parser = argparse.ArgumentParser(description='COROS Activity Downloader')
-    parser.add_argument('--count', type=int, default=DEFAULT_COUNT,
-                        help=f'Number of activities to download (default: {DEFAULT_COUNT})')
-    parser.add_argument('--sport-type', type=int, default=DEFAULT_SPORT_TYPE,
-                        help=f'Sport type filter (100=running, default: {DEFAULT_SPORT_TYPE})')
-    parser.add_argument('--download-dir', type=str, default=DEFAULT_DOWNLOAD_DIR,
-                        help=f'Download directory (default: {DEFAULT_DOWNLOAD_DIR})')
-    parser.add_argument('--user-id', type=str, default=DEFAULT_USER_ID,
-                        help='COROS user ID')
+    parser.add_argument('--count', type=int, default=config.get("defaultCount", 10),
+                        help=f'下载活动数量 (默认: {config.get("defaultCount", 10)})')
+    parser.add_argument('--sport-type', type=int, default=config.get("sportType", 100),
+                        help=f'运动类型筛选 (100=跑步, 默认: {config.get("sportType", 100)})')
+    parser.add_argument('--download-dir', type=str, default=config.get("downloadDir"),
+                        help=f'下载目录 (默认: {config.get("downloadDir")})')
+    parser.add_argument('--user-id', type=str, default=config.get("userId"),
+                        help='COROS 用户 ID')
     parser.add_argument('--label-ids', type=str, default=None,
-                        help='Comma-separated list of labelIds to download (bypasses browser extraction)')
+                        help='直接指定 labelId 列表（逗号分隔）')
     parser.add_argument('--activities-json', type=str, default=None,
-                        help='JSON string of activities array (from browser extraction)')
+                        help='活动列表 JSON 字符串（从浏览器或 MCP 工具获取）')
     parser.add_argument('--validate-only', action='store_true',
-                        help='Only validate existing files, do not download')
+                        help='仅验证现有文件，不下载')
     parser.add_argument('--json-output', action='store_true',
-                        help='Output results as JSON')
+                        help='以 JSON 格式输出结果')
+    parser.add_argument('--show-config', action='store_true',
+                        help='显示当前配置并退出')
     
     args = parser.parse_args()
     
-    download_dir = setup_download_dir(args.download_dir)
+    # 显示配置模式
+    if args.show_config:
+        print(json.dumps(config, indent=2, ensure_ascii=False))
+        return
     
-    # Step 1: Scan existing files
+    download_dir = setup_download_dir(args.download_dir)
+    min_file_size = config.get("minFileSize", 1024)
+    download_delay = config.get("downloadDelayMs", 500) / 1000
+    
+    # Step 1: 扫描现有文件
     existing = scan_existing_files(download_dir)
     
     if args.json_output:
-        print(f"Scanned {len(existing)} existing FIT files", file=sys.stderr)
+        print(f"已扫描 {len(existing)} 个现有 FIT 文件", file=sys.stderr)
     else:
         print(f"\n{'='*50}")
         print(f"  COROS Activity Downloader")
-        print(f"  Download directory: {download_dir}")
-        print(f"  Existing files: {len(existing)}")
+        print(f"  下载目录: {download_dir}")
+        print(f"  现有文件: {len(existing)}")
         print(f"{'='*50}\n")
     
-    # Step 2: Determine activities to download
+    # Step 2: 确定要下载的活动
     activities = []
     
     if args.activities_json:
-        # Use activities provided as JSON (from browser extraction)
+        # 使用提供的活动列表 JSON
         activities = json.loads(args.activities_json)
     elif args.label_ids:
-        # Use explicit labelId list
+        # 使用显式 labelId 列表
         for lid in args.label_ids.split(','):
             lid = lid.strip()
             if lid:
                 activities.append({"labelId": lid, "name": f"Activity_{lid}", "sportType": args.sport_type})
     else:
-        print("ERROR: No activities specified. Use --activities-json, --label-ids, or pipe activities from browser.",
+        print("错误: 未指定活动。请使用 --activities-json 或 --label-ids 参数。",
+              file=sys.stderr)
+        print("提示: 使用 MCP 工具 mcp_coros_list_activities 获取活动列表。",
               file=sys.stderr)
         sys.exit(1)
     
-    # Step 3: Classify - to download vs already exists
+    # Step 3: 分类 - 待下载 vs 已存在
     to_download = []
     skipped = []
     
@@ -243,14 +239,14 @@ def main():
             to_download.append(act)
     
     if not args.json_output:
-        print(f"Classification:")
+        print(f"分类结果:")
         for s in skipped:
-            print(f"  [SKIP] {s['name']} (exists: {s.get('existing_size_kb', '?')} KB)")
+            print(f"  [跳过] {s['name']} (已存在: {s.get('existing_size_kb', '?')} KB)")
         for t in to_download:
-            print(f"  [TODO] {t['name']}")
-        print(f"\nSummary: {len(to_download)} to download, {len(skipped)} skipped, {len(activities)} total\n")
+            print(f"  [待下载] {t['name']}")
+        print(f"\n摘要: {len(to_download)} 待下载, {len(skipped)} 已跳过, {len(activities)} 总计\n")
     
-    # Step 4: Validate-only mode
+    # Step 4: 仅验证模式
     if args.validate_only:
         if args.json_output:
             result = {
@@ -265,7 +261,7 @@ def main():
             print(json.dumps(result, indent=2, ensure_ascii=False))
         return
     
-    # Step 5: Download files
+    # Step 5: 下载文件
     downloaded = []
     failed = []
     
@@ -277,12 +273,12 @@ def main():
         filepath = os.path.join(download_dir, filename)
         
         if not args.json_output:
-            print(f"[{i+1}/{len(to_download)}] Downloading: {name}...", end=" ")
+            print(f"[{i+1}/{len(to_download)}] 下载中: {name}...", end=" ")
         
         success, size, error = download_file(url, filepath)
         
         if success:
-            is_valid, issues = validate_fit_file(filepath)
+            is_valid, issues = validate_fit_file(filepath, min_file_size)
             if is_valid:
                 downloaded.append({
                     "labelId": lid,
@@ -296,17 +292,17 @@ def main():
                     "timestamp": datetime.utcnow().isoformat() + "Z"
                 })
                 if not args.json_output:
-                    print(f"OK ({size/1024:.2f} KB)")
+                    print(f"成功 ({size/1024:.2f} KB)")
             else:
                 failed.append({
                     "labelId": lid,
                     "name": name,
-                    "error": f"Validation failed: {'; '.join(issues)}",
+                    "error": f"验证失败: {'; '.join(issues)}",
                     "errorCode": "VALIDATION_FAILED",
                     "timestamp": datetime.utcnow().isoformat() + "Z"
                 })
                 if not args.json_output:
-                    print(f"WARNING: {'; '.join(issues)}")
+                    print(f"警告: {'; '.join(issues)}")
         else:
             failed.append({
                 "labelId": lid,
@@ -316,12 +312,12 @@ def main():
                 "timestamp": datetime.utcnow().isoformat() + "Z"
             })
             if not args.json_output:
-                print(f"FAILED: {error}")
+                print(f"失败: {error}")
         
-        # Delay to avoid rate limiting
-        time.sleep(DOWNLOAD_DELAY_MS / 1000)
+        # 延迟以避免限速
+        time.sleep(download_delay)
     
-    # Step 6: Final summary
+    # Step 6: 最终摘要
     total_fit = len([f for f in os.listdir(download_dir) if f.endswith('.fit')])
     
     if args.json_output:
@@ -344,17 +340,17 @@ def main():
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
         print(f"\n{'='*50}")
-        print(f"  Download Complete!")
+        print(f"  下载完成!")
         print(f"{'='*50}")
-        print(f"  Total activities:  {len(activities)}")
-        print(f"  Downloaded:        {len(downloaded)}")
-        print(f"  Skipped (exists):  {len(skipped)}")
-        print(f"  Failed:            {len(failed)}")
-        print(f"  Total FIT files:   {total_fit}")
+        print(f"  总活动数:      {len(activities)}")
+        print(f"  已下载:        {len(downloaded)}")
+        print(f"  已跳过(存在):  {len(skipped)}")
+        print(f"  失败:          {len(failed)}")
+        print(f"  FIT 文件总数:  {total_fit}")
         print(f"{'='*50}")
         
         if failed:
-            print(f"\nFailed downloads:")
+            print(f"\n失败详情:")
             for f_item in failed:
                 print(f"  - {f_item['name']} ({f_item['labelId']}): {f_item['error']}")
 

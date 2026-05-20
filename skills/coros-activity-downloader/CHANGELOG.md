@@ -1,5 +1,24 @@
 # COROS Activity Downloader 更新日志
 
+## [2.1.0] - 2026-05-19
+
+### 新增
+
+- **配置文件支持** - 新增 `config.json`，支持外部配置
+  - userId、downloadDir、sportType 等参数可配置
+  - 无需修改脚本即可调整设置
+- **`--show-config` 参数** - 显示当前配置并退出
+- **SKILL.md 规范化** - 符合技能规范格式
+  - 添加必需的 H2 部分：Purpose、Prerequisites、Usage、Architecture、Error Handling
+  - 添加执行流程图
+  - description 精简至 50 字符以内
+
+### 改进
+
+- **配置加载机制** - 脚本启动时自动加载 config.json
+- **中文注释** - 关键函数添加中文注释
+- **错误提示优化** - 更清晰的错误信息和解决建议
+
 ## [2.0.0] - 2026-04-18
 
 ### 重大变更
@@ -45,6 +64,7 @@
 - 支持从 COROS Training Hub 下载 FIT 文件
 - PowerShell 实现
 
+[2.1.0]: #210---2026-05-19
 [2.0.0]: #200---2026-04-18
 [1.0.2]: #102---2026-04-17
 [1.0.1]: #101---2026-04-17
