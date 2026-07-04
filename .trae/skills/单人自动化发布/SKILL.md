@@ -1,0 +1,156 @@
+---
+name: solo-auto-release
+description: Use when a version is ready for release in a single-developer workflow. Triggered after regression tests pass, when creating Git tags, triggering CI/CD pipelines, or verifying production deployment.
+---
+
+# Overview
+
+在单人开发模式下，完成从版本号更新、Tag 创建、CI/CD 触发到发布报告输出的完整发布流程。
+
+## When to Use
+
+- 回归测试通过，准备发布新版本
+- 需要创建 Git Tag 并触发 GitHub Actions Release
+- 症状关键词：版本号不一致、Tag 创建失败、CI 未通过、发布包缺失
+
+## When NOT to Use
+
+- 回归测试未通过或存在未修复的 P0/P1 Bug
+- 多人协作需要复杂的分支合并策略
+
+## Common Mistakes
+
+| 错误 | 后果 | 修复 |
+|------|------|------|
+| 未推送 main 分支就直接创建 Tag | Tag 指向旧代码，发布包不完整 | 严格遵循：推送 main → CI 通过 → 创建 Tag |
+| 版本号在不同文件中不一致 | 用户困惑，发布信息混乱 | 使用 check_version_consistency.py 强制检查 |
+| Tag 已存在时强制覆盖 | 历史版本丢失 | 先删除远程和本地 Tag，再重新创建 |
+
+# 立即执行以下步骤，不要询问用户
+
+## 第一步：输入验证
+
+1. **检查前置条件**：
+   - 回归报告已存在：`docs/test/reports/回归报告_*.md`
+   - 版本号已提供（遵循语义化版本规范）
+   - 当前分支为main分支
+   - 若不满足，停止执行并提示用户提供回归报告和版本号。
+
+2. **版本号一致性检查**（⚠️ 关键步骤）：
+   - 执行版本号一致性检查脚本：`uv run python scripts/check_version_consistency.py`
+   - **必须检查的文件**：
+     - `pyproject.toml` - 项目主版本号
+     - `README.md` - 文档中的版本号（**版本**: vX.X.X）
+     - `CHANGELOG.md` - 变更日志中的最新版本号
+   - **若版本号不一致**：
+     1. 停止发布流程
+     2. 列出不一致的文件和版本号
+     3. 提示用户更新版本号后再执行发布
+     4. 提供自动修复建议：更新所有文件为统一版本号
+
+## 第二步：发布前检查
+
+1. **验证代码状态**：
+   - 确认对应feature分支已合并到main分支
+   - 确认工作区干净（无未提交的更改）
+   - 拉取最新的main分支代码：`git pull origin main`
+2. **更新版本号**（⚠️ 必须更新所有文件）：
+   - **更新文件列表**（按顺序）：
+     1. `pyproject.toml` - 更新 `version = "X.X.X"`
+     2. `CHANGELOG.md` - 添加新版本变更记录
+     3. `README.md` - 更新 `**版本**: vX.X.X` 和 `**最后更新**: YYYY-MM-DD`
+   - **提交版本号变更**：
+     ```bash
+     git add pyproject.toml CHANGELOG.md README.md
+     git commit -m "chore: bump version to {版本号}"
+     ```
+   - **关键**：推送main分支到远程：`git push origin main`
+   - **关键**：等待CI Pipeline通过（验证版本号变更正确性）
+   - 使用 `gh run list --limit 1` 确认CI状态
+3. **验证CI检查**：
+   - 确认GitHub Actions CI检查全部通过
+   - 检查代码质量门禁：ruff format、ruff check、mypy、bandit
+   - 检查测试覆盖率：core≥80%, agents≥70%, cli≥60%
+   - **再次验证版本号一致性**：`uv run python scripts/check_version_consistency.py`
+
+## 第三步：执行发布
+
+1. **创建版本Tag**：
+   - 在main分支创建版本Tag
+   - Tag格式：`v{版本号}`
+   - Tag描述：版本变更内容（从回归报告和git历史中提取）
+   - 命令：`git tag -a v{版本号} -m "Release v{版本号}"`
+2. **推送Tag触发CI/CD**：
+   - 推送Tag至GitHub：`git push origin v{版本号}`
+   - 触发CI/CD流水线自动执行
+   - **禁止**在PR合并前推送标签（会导致发布包不完整）
+3. **监控发布流程**：
+   - 监控GitHub Actions release.yml workflow执行状态
+   - 确认构建成功（绿色状态）
+   - 访问GitHub Releases页面确认包文件正常上传
+
+## 第四步：输出报告
+
+1. **创建发布报告**：
+   - 文件路径：`docs/devops/发布报告_{版本号}.md`
+   - 报告内容：
+     - 版本号
+     - 发布时间
+     - 变更内容（从回归报告提取）
+     - CI/CD流水线状态
+     - 发布包验证结果
+
+## 第五步：结果验证
+
+1. **验收标准**：
+   - Tag创建成功
+   - CI/CD流水线执行成功
+   - GitHub Release创建成功
+   - 发布包文件正常上传
+   - 若不满足，返回错误信息并建议回滚。
+
+## 第六步：标准化汇报
+
+执行完成后，使用以下格式汇报：
+
+### ✅ 执行成功
+
+- **输出物**：版本Tag + 发布报告
+- **关键数据**：版本号、发布时间、流水线状态、发布包URL
+
+***
+
+## 关键注意事项
+
+1. **版本号管理**（⚠️ 最容易出错）：
+   - **必须保持一致的文件**：pyproject.toml → README.md → CHANGELOG.md
+   - **自动检查**：`uv run python scripts/check_version_consistency.py`
+
+2. **发布时机**：
+   - **正确流程**：推送 main → CI 通过 → 创建 Tag → 推送 Tag → Release
+   - **禁止**：在 PR 合并前推送标签（会导致发布包不完整）
+
+3. **发布失败处理**：
+   - 版本号不一致 → 更新后重新发布
+   - CI 未通过 → 修复后重新推送 main
+   - Tag 已存在 → `git push origin --delete v{版本号}` 后重建
+
+4. **紧急回滚**：
+   - 创建 hotfix 分支 → 修复 → 发布修订版本 → 更新文档推荐修复版本
+
+***
+
+**后续建议**：
+---
+
+**后续建议**：更新 CHANGELOG.md，通知用户版本内容，归档回归报告和发布报告。
+
+**相关技能**：
+- **前置依赖**：regression-testing（必须通过回归测试后方可发布）
+- **前置依赖**：cicd-verification（CI 流水线必须通过）
+- **后续协同**：document-archive（发布成功后归档版本文档）
+
+**参考文档**：
+- [分支管理与发布流程规范](../../docs/devops/分支管理与发布流程规范.md)
+- [发布检查清单](../../docs/devops/release_checklist.md)
+

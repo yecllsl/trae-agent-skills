@@ -1,0 +1,89 @@
+---
+name: cicd-verification
+description: Use when verifying that CI/CD pipelines trigger correctly and all build steps pass after code push. Triggered after merging to main, updating workflow files, or when release readiness depends on green pipeline status.
+---
+
+# Overview
+
+验证 CI/CD 流水线在代码推送后能否自动触发、各步骤是否正常执行、版本号是否一致。
+
+## When to Use
+
+- 合并到 main 分支后需要确认流水线状态
+- 更新了 workflow 文件或构建脚本
+- 症状关键词：流水线未触发、步骤报错、构建失败、版本号不一致
+
+## When NOT to Use
+
+- 流水线配置本身存在错误（应使用 fix-ci）
+- 仅需发布版本（应使用 solo-auto-release）
+
+## Common Mistakes
+
+| 错误 | 后果 | 修复 |
+|------|------|------|
+| 忽略版本号一致性检查 | 发布时版本混乱 | 将版本号检查脚本纳入 CI 必检步骤 |
+| 仅验证最新一次运行 | 间歇性问题被遗漏 | 查看最近 3-5 次运行记录确认稳定性 |
+| 未建议将缺失检查加入 CI | 问题重复出现 | 明确输出 CI 配置改进建议 |
+
+# 立即执行以下步骤，不要询问用户
+
+## 第一步：输入验证
+1. **检查前置条件**：
+    *   Git 分支已创建
+    *   构建命令已提供
+    *   若不满足，停止执行并提示用户提供 Git 分支和构建命令。
+
+2. **版本号一致性检查**（⚠️ 关键步骤）：
+    *   执行版本号一致性检查脚本：`uv run python scripts/check_version_consistency.py`
+    *   **必须检查的文件**：
+        - `pyproject.toml` - 项目主版本号
+        - `README.md` - 文档中的版本号（**版本**: vX.X.X）
+        - `CHANGELOG.md` - 变更日志中的最新版本号
+    *   **若版本号不一致**：
+        1. 停止CI验证流程
+        2. 列出不一致的文件和版本号
+        3. 提示用户更新版本号后再执行CI验证
+        4. 提供自动修复建议：更新所有文件为统一版本号
+
+## 第二步：验证流水线
+1. **分析构建需求**：
+    *   分析构建命令和依赖
+    *   分析测试命令和覆盖率要求
+    *   分析部署命令和目标环境
+    *   **分析版本号检查脚本**：确认 `scripts/check_version_consistency.py` 存在且可执行
+2. **验证流水线**：
+    *   推送代码至 GitHub
+    *   验证流水线自动触发
+    *   **验证版本号检查步骤**：
+        - 确认CI流水线中包含版本号一致性检查步骤
+        - 若CI流水线未包含，建议添加到构建前检查
+    *   验证流水线步骤无报错
+    *   验证构建成功
+
+## 第三步：输出报告
+1. **创建流水线执行报告**：
+    *   文件路径：`/docs/devops/流水线执行报告_{版本号}.md`
+    *   报告内容：流水线配置、执行结果、错误日志（如有）
+
+## 第四步：结果验证
+1. **验收标准**：
+    *   流水线自动触发
+    *   流水线步骤无报错
+    *   构建成功
+    *   **版本号一致性检查通过**（⚠️ 关键）
+    *   若不满足，返回错误信息。
+
+## 第五步：标准化汇报
+执行完成后，使用以下格式汇报：
+
+### ✅ 执行成功
+*   **输出物**：流水线执行报告
+*   **关键数据**：流水线步骤数、执行时间、构建状态
+
+**后续建议**：建议执行 solo-auto-release 发布新版本。
+
+**相关技能**：
+- **前置依赖**：feature-development（CI 验证针对开发代码）
+- **后续协同**：solo-auto-release（CI 通过后执行发布）
+- **关联技能**：fix-ci（CI 失败时执行修复）
