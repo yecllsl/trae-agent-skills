@@ -18,11 +18,32 @@
 
 Skill 是 Trae IDE 的 Agent 能力扩展，通过预定义的指令和脚本，让 AI 助手能够执行特定任务。
 
+### Skill 的分类
+
+在本项目中，Skill 分为两类：
+
+**1. 方法论 Skill（`.trae/skills/`）**
+
+用于项目内部的方法论 Skill，覆盖软件开发全生命周期，如：
+- `产品规划`、`需求分析`、`架构设计` 等流程 Skill
+- `功能开发`、`Bug修复`、`代码优化` 等开发 Skill
+- `测试策略`、`测试执行`、`回归测试` 等测试 Skill
+- `CICD验证`、`单人自动化发布`、`文档归档` 等运维 Skill
+
+这类 Skill 通常只包含 `SKILL.md` 定义文件，可选包含执行脚本。
+
+**2. 示例 Skill（`skills/`）**
+
+用于展示的独立 Skill 示例，如：
+- `coros-activity-downloader` - COROS 活动数据下载器
+
+这类 Skill 包含完整的文档和脚本，可作为开发新 Skill 的参考。
+
 ### Skill 的组成部分
 
 - **SKILL.md**: Skill 的定义文档，包含元数据、使用说明、架构描述
 - **脚本**: 实际执行任务的代码（Python、JavaScript 等）
-- **README.md**: 面向用户的文档
+- **README.md**: 面向用户的文档（示例 Skill 必需）
 - **可选**: 测试、示例、详细文档
 
 ## 开发环境准备

@@ -37,6 +37,23 @@
 
 ### 目录结构
 
+Skill 可以放置在两个位置：
+
+**1. 方法论体系中的 Skill（`.trae/skills/`）**
+
+用于项目内部的方法论 Skill，如功能开发、Bug修复等：
+
+```
+.trae/skills/your-skill-name/
+├── SKILL.md           # Skill定义（必需）
+└── scripts/           # 执行脚本（可选）
+    └── script.py
+```
+
+**2. 示例集合中的 Skill（`skills/`）**
+
+用于展示的独立 Skill 示例：
+
 ```
 skills/your-skill-name/
 ├── README.md          # 用户文档（必需）
