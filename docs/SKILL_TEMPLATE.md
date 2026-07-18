@@ -54,7 +54,7 @@ Example:
 
 ### Script Location
 ```
-skills/skill-name/scripts/main.py
+.trae/skills/skill-name/scripts/main.py
 ```
 
 ## Quick Start (Recommended Workflow)
@@ -81,7 +81,7 @@ Commands or instructions for verification
 
 ### Location
 ```
-skills/skill-name/scripts/main.py
+.trae/skills/skill-name/scripts/main.py
 ```
 
 ### CLI Arguments

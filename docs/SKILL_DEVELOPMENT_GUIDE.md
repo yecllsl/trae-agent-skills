@@ -20,11 +20,11 @@ Skill 是 Trae IDE 的 Agent 能力扩展，通过预定义的指令和脚本，
 
 ### Skill 的分类
 
-在本项目中，Skill 分为两类：
+在本项目中，Skill 分为两类，统一存放在 `.trae/skills/` 目录下：
 
-**1. 方法论 Skill（`.trae/skills/`）**
+**1. 方法论 Skill**
 
-用于项目内部的方法论 Skill，覆盖软件开发全生命周期，如：
+覆盖软件开发全生命周期，如：
 - `产品规划`、`需求分析`、`架构设计` 等流程 Skill
 - `功能开发`、`Bug修复`、`代码优化` 等开发 Skill
 - `测试策略`、`测试执行`、`回归测试` 等测试 Skill
@@ -32,12 +32,12 @@ Skill 是 Trae IDE 的 Agent 能力扩展，通过预定义的指令和脚本，
 
 这类 Skill 通常只包含 `SKILL.md` 定义文件，可选包含执行脚本。
 
-**2. 示例 Skill（`skills/`）**
+**2. 功能型 Skill**
 
-用于展示的独立 Skill 示例，如：
+做具体事情的 Skill，如：
 - `coros-activity-downloader` - COROS 活动数据下载器
 
-这类 Skill 包含完整的文档和脚本，可作为开发新 Skill 的参考。
+这类 Skill 包含完整的文档和脚本，可作为开发新功能型 Skill 的参考。
 
 ### Skill 的组成部分
 
@@ -64,8 +64,8 @@ Skill 是 Trae IDE 的 Agent 能力扩展，通过预定义的指令和脚本，
 
 2. 创建新的 Skill 目录
    ```bash
-   mkdir skills/my-new-skill
-   cd skills/my-new-skill
+   mkdir .trae/skills/my-new-skill
+   cd .trae/skills/my-new-skill
    ```
 
 ## Skill 结构
@@ -387,7 +387,7 @@ Add skill: skill-name v1.0.0
 
 参考现有的 Skill：
 
-- [coros-activity-downloader](../skills/coros-activity-downloader/) - 完整的 Python Skill 示例
+- [coros-activity-downloader](../.trae/skills/coros-activity-downloader/) - 完整的 Python Skill 示例
 
 ## 获取帮助
 

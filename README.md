@@ -7,10 +7,10 @@
 
 ## 项目定位
 
-本项目包含两个核心部分：
+本项目包含完整的 AI 辅助开发方法论体系：
 
 1. **方法论体系**（`.trae/` 目录）：完整的 AI 辅助开发方法论，包括智能体协作规范、Skills 协作规范、规则体系等
-2. **Skills 示例集合**（`skills/` 目录）：自行开发的 Trae Skills 示例，展示如何创建和使用自定义 Skill
+2. **自定义 Skills**（`.trae/skills/` 目录）：覆盖软件开发全生命周期的 Skill，包含方法论型和功能型两类
 
 ## 核心内容
 
@@ -33,7 +33,7 @@
 
 #### 自定义 Skills（`.trae/skills/`）
 
-包含 18 个自定义 Skill，覆盖软件开发全生命周期：
+包含方法论型和功能型两类 Skill，覆盖软件开发全生命周期：
 
 **产品与需求阶段**
 - `产品规划` - 定义产品愿景和路线图
@@ -62,6 +62,9 @@
 - `FIX-CI` - 自动诊断并修复 CI 流水线问题
 - `文档归档` - 归档版本相关文档
 
+**功能型 Skill**
+- `coros-activity-downloader` - 从 COROS Training Hub 下载跑步活动记录
+
 #### 规则体系（`.trae/rules/`）
 
 定义开发过程中的各类约束和规范：
@@ -80,11 +83,7 @@
 - `Skills协作.md` - 全局 Skill 与项目 Skill 协作规范（决策型方法论）
 - `完整流程调用规范.md` - 完整开发流程的 Skill 调用规范
 
-### Skills 示例集合（`skills/` 目录）
-
-根目录下的 `skills/` 目录包含自行开发的 Trae Skills 示例，当前包含：
-
-#### coros-activity-downloader
+### 功能型 Skill 示例（`.trae/skills/coros-activity-downloader/`）
 
 从 COROS Training Hub 自动下载跑步活动记录（FIT 格式），支持智能去重和增量同步。
 
@@ -99,13 +98,13 @@
 
 ```bash
 # 下载最新 10 条跑步记录
-python skills/coros-activity-downloader/scripts/download_coros.py --count 10
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py --count 10
 
 # 指定下载目录
-python skills/coros-activity-downloader/scripts/download_coros.py --download-dir "D:\COROS_Backup"
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py --download-dir "D:\COROS_Backup"
 
 # JSON 输出模式（便于程序化调用）
-python skills/coros-activity-downloader/scripts/download_coros.py --json-output
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py --json-output
 ```
 
 **依赖要求**
@@ -132,7 +131,7 @@ trae-agent-skills/
 │   │   ├── quality-rules.md        # 质量规则
 │   │   ├── process-rules.md        # 流程规则
 │   │   └── ponytail.md             # YAGNI 原则
-│   ├── skills/                     # 自定义 Skills（18 个）
+│   ├── skills/                     # 自定义 Skills（方法论型 + 功能型）
 │   │   ├── 产品规划/
 │   │   ├── 需求分析/
 │   │   ├── 架构设计/
@@ -150,20 +149,13 @@ trae-agent-skills/
 │   │   ├── 单人自动化发布/
 │   │   ├── FIX-CI/
 │   │   ├── 文档归档/
-│   │   └── coros-activity-downloader/  # 示例 Skill
+│   │   └── coros-activity-downloader/  # 功能型 Skill 示例
 │   ├── 指令手册.md                  # 智能体指令定义
 │   ├── 协作链路.md                  # 协作流程规范
 │   ├── Skills协作.md                # Skill 协作规范
 │   ├── 完整流程调用规范.md           # 完整流程调用规范
 │   ├── mcp.json                    # MCP 配置
 │   └── skill-config.json           # Skill 配置
-├── skills/                         # Skills 示例集合
-│   └── coros-activity-downloader/  # COROS 活动下载器示例
-│       ├── SKILL.md                # Skill 定义
-│       ├── README.md               # 使用说明
-│       ├── CHANGELOG.md            # 更新日志
-│       └── scripts/
-│           └── download_coros.py   # 下载脚本
 ├── docs/                           # 开发文档
 │   ├── SKILL_DEVELOPMENT_GUIDE.md  # Skill 开发指南
 │   └── SKILL_TEMPLATE.md           # Skill 模板
@@ -210,14 +202,14 @@ xcopy /E /I .trae\skills\* %USERPROFILE%\.trae\skills\
 cp -r .trae/skills/功能开发 ~/.trae/skills/
 ```
 
-### 4. 运行示例 Skill
+### 4. 运行功能型 Skill 示例
 
 ```bash
 # 验证 Skill 结构
 python scripts/validate-skills.py
 
 # 运行 COROS 下载器示例
-python skills/coros-activity-downloader/scripts/download_coros.py --count 10
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py --count 10
 ```
 
 ## 开发新 Skill

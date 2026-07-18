@@ -16,7 +16,7 @@ from typing import List, Dict
 
 # 项目根目录
 PROJECT_ROOT = Path(__file__).parent.parent
-SKILLS_DIR = PROJECT_ROOT / "skills"
+SKILLS_DIR = PROJECT_ROOT / ".trae" / "skills"
 
 # 必需文件
 REQUIRED_FILES = ["README.md", "SKILL.md"]

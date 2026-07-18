@@ -32,7 +32,7 @@
 
 - **目标用户**: Trae IDE 使用者、Skill 开发者
 - **核心价值**: 提供标准化的 Skill 开发框架，降低扩展 Trae Agent 能力的门槛
-- **当前状态**: 包含 1 个稳定 Skill（coros-activity-downloader v2.0.0）
+- **当前状态**: 包含 1 个功能型 Skill（coros-activity-downloader v2.0.0）及 18 个方法论 Skill
 
 ### 1.2 技术栈
 
@@ -54,11 +54,12 @@ graph TB
     end
 
     subgraph "Skills 仓库 (本项目)"
-        C[skills/]
+        C[.trae/skills/]
         C --> C1[coros-activity-downloader]
         C1 --> C1a[SKILL.md - Skill 定义]
         C1 --> C1b[scripts/download_coros.py]
         C1 --> C1c[README.md - 用户文档]
+        C --> C2[方法论 Skill...]
     end
 
     subgraph "工具与规范层"
@@ -69,7 +70,6 @@ graph TB
 
     subgraph "配置层"
         G[.trae/mcp.json]
-        H[.trae/skills/]
         I[AGENTS.md]
     end
 
@@ -84,7 +84,6 @@ graph TB
     D -->|验证| C
     E -->|指导| C
     F -->|模板| C
-    H -->|安装目标| C
     I -->|Agent 指令| B
 
     style C fill:#4CAF50,color:#fff
@@ -96,21 +95,16 @@ graph TB
 
 | 层 | 职责 | 关键目录/文件 |
 |----|------|--------------|
-| **Skill 定义层** | 包含 Skill 的 SKILL.md、脚本、文档 | `skills/` |
+| **Skill 定义层** | 包含 Skill 的 SKILL.md、脚本、文档 | `.trae/skills/` |
 | **验证工具层** | 确保 Skill 符合项目规范 | `scripts/validate-skills.py` |
 | **文档与模板层** | 开发指南、SKILL.md 模板 | `docs/` |
 | **IDE 配置层** | Trae IDE 运行时配置 | `.trae/` |
 | **协作规范层** | Issue/PR 模板、贡献指南 | `.github/`, `CONTRIBUTING.md` |
 | **Agent 指令层** | 给 AI Agent 的仓库级指令 | `AGENTS.md` |
 
-### 2.2 两个 skills/ 目录的关系
+### 2.2 Skills 目录
 
-| 路径 | 用途 | 说明 |
-|------|------|------|
-| `skills/` | **源定义** | Skill 的开发源，Git 跟踪 |
-| `.trae/skills/` | **安装副本** | 用户安装后的目标位置（`~/.trae/skills/`） |
-
-仓库同时提供这两个位置以便 Clone 后直接使用（`.trae/` 目录可直接复制到 `%USERPROFILE%\.trae\`）。
+所有 Skill 统一存放在 `.trae/skills/` 目录下，包含方法论型和功能型两类。开发完成后即可在 Trae IDE 中直接使用，无需额外拷贝。
 
 ---
 
@@ -127,8 +121,16 @@ trae-agent-skills/
 │   └── PULL_REQUEST_TEMPLATE.md       # PR 模板
 │
 ├── .trae/                             # Trae IDE 运行时配置
-│   ├── skills/                        # 已安装的 Skills
-│   │   └── coros-activity-downloader/ # (安装副本)
+│   ├── skills/                        # 自定义 Skills（方法论型 + 功能型）
+│   │   ├── 产品规划/                   # 方法论型 Skill
+│   │   ├── 需求分析/
+│   │   ├── ...
+│   │   └── coros-activity-downloader/ # 功能型 Skill 示例
+│   │       ├── scripts/
+│   │       │   └── download_coros.py  # 主下载脚本
+│   │       ├── CHANGELOG.md           # Skill 版本历史
+│   │       ├── README.md              # 用户使用文档
+│   │       └── SKILL.md               # Agent 技术定义
 │   └── mcp.json                       # MCP 服务配置
 │
 ├── docs/                              # 项目文档
@@ -137,14 +139,6 @@ trae-agent-skills/
 │
 ├── scripts/                           # 工具脚本
 │   └── validate-skills.py             # Skill 验证工具
-│
-├── skills/                            # Skill 源定义 (核心)
-│   └── coros-activity-downloader/     # COROS 活动下载 Skill
-│       ├── scripts/
-│       │   └── download_coros.py      # 主下载脚本
-│       ├── CHANGELOG.md               # Skill 版本历史
-│       ├── README.md                  # 用户使用文档
-│       └── SKILL.md                   # Agent 技术定义
 │
 ├── .gitignore                         # Git 忽略规则
 ├── AGENTS.md                          # Agent 仓库级指令
@@ -172,7 +166,7 @@ trae-agent-skills/
 ### 4.1 Skill: coros-activity-downloader
 
 > **版本**: v2.0.0 | **状态**: ✅ 稳定 | **语言**: Python 3  
-> 路径: [skills/coros-activity-downloader/](file:///d:/yecll/Documents/LocalCode/testskills/skills/coros-activity-downloader/)
+> 路径: [.trae/skills/coros-activity-downloader/](file:///d:/yecll/Documents/LocalCode/testskills/.trae/skills/coros-activity-downloader/)
 
 #### 4.1.1 功能概述
 
@@ -188,7 +182,7 @@ trae-agent-skills/
 
 ##### SKILL.md — Agent 技术定义
 
-[SKILL.md](file:///d:/yecll/Documents/LocalCode/testskills/skills/coros-activity-downloader/SKILL.md) 是 Trae Agent 读取的核心定义文件：
+[SKILL.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/skills/coros-activity-downloader/SKILL.md) 是 Trae Agent 读取的核心定义文件：
 
 ```yaml
 ---
@@ -213,7 +207,7 @@ enabled_tools:
 
 ##### README.md — 用户文档
 
-[README.md](file:///d:/yecll/Documents/LocalCode/testskills/skills/coros-activity-downloader/README.md) 面向最终用户，包含：
+[README.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/skills/coros-activity-downloader/README.md) 面向最终用户，包含：
 - 功能特性列表（自动下载、智能去重、完整性验证、中文支持、JSON 输出、断点续传）
 - CLI 参数表（`--count`, `--activities-json`, `--label-ids`, `--download-dir`, `--sport-type`, `--validate-only`, `--json-output`）
 - 工作原理 4 步骤
@@ -221,7 +215,7 @@ enabled_tools:
 
 ##### CHANGELOG.md — 版本历史
 
-[CHANGELOG.md](file:///d:/yecll/Documents/LocalCode/testskills/skills/coros-activity-downloader/CHANGELOG.md)：
+[CHANGELOG.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/skills/coros-activity-downloader/CHANGELOG.md)：
 
 | 版本 | 日期 | 关键变更 |
 |------|------|---------|
@@ -232,7 +226,7 @@ enabled_tools:
 
 ##### scripts/download_coros.py — 核心脚本
 
-[download_coros.py](file:///d:/yecll/Documents/LocalCode/testskills/skills/coros-activity-downloader/scripts/download_coros.py)（373 行）是整个 Skill 的执行引擎。
+[download_coros.py](file:///d:/yecll/Documents/LocalCode/testskills/.trae/skills/coros-activity-downloader/scripts/download_coros.py)（373 行）是整个 Skill 的执行引擎。
 
 **依赖清单**（全部为 Python 标准库）：
 
@@ -268,7 +262,7 @@ enabled_tools:
 
 #### 4.2.1 功能概述
 
-对 `skills/` 目录下的所有 Skill 进行规范性检查，确保每个 Skill 满足项目要求。
+对 `.trae/skills/` 目录下的所有 Skill 进行规范性检查，确保每个 Skill 满足项目要求。
 
 #### 4.2.2 验证项清单
 
@@ -609,9 +603,9 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    A[开始] --> B{skills/ 目录存在?}
+    A[开始] --> B{.trae/skills/ 目录存在?}
     B -->|否| C[❌ 退出码 1]
-    B -->|是| D[遍历 skills/ 子目录]
+    B -->|是| D[遍历 .trae/skills/ 子目录]
     
     D --> E[检查必需文件]
     E --> F{README.md + SKILL.md?}
@@ -644,12 +638,8 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A[git clone 仓库] --> B[选择安装方式]
-    B -->|全部安装| C["xcopy .trae %USERPROFILE%\.trae"]
-    B -->|单个 Skill| D["cp -r skills/xxx ~/.trae/skills/"]
-    C --> E[Trae IDE 识别 Skills]
-    D --> E
-    E --> F[Agent 可调用]
+    A[git clone 仓库] --> B[Trae IDE 识别 Skills]
+    B --> C[Agent 可调用]
 ```
 
 ---
@@ -733,7 +723,7 @@ python -m venv .venv
 xcopy /E /I .trae $env:USERPROFILE\.trae
 
 # 方式二：安装单个 Skill
-Copy-Item -Recurse skills/coros-activity-downloader $env:USERPROFILE\.trae\skills\
+Copy-Item -Recurse .trae/skills/coros-activity-downloader $env:USERPROFILE\.trae\skills\
 ```
 
 ### 8.3 运行验证
@@ -753,18 +743,18 @@ python scripts/validate-skills.py -s coros-activity-downloader
 
 ```powershell
 # 通过 labelId 直接下载
-python skills/coros-activity-downloader/scripts/download_coros.py `
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py `
     --label-ids "476855911038615862,476786357002338514" `
     --download-dir "D:\COROS_Backup"
 
 # 通过活动 JSON 下载
-python skills/coros-activity-downloader/scripts/download_coros.py `
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py `
     --count 15 `
     --activities-json '[{"labelId":"xxx","name":"跑步","sportType":100}]' `
     --json-output
 
 # 仅验证已有文件
-python skills/coros-activity-downloader/scripts/download_coros.py `
+python .trae/skills/coros-activity-downloader/scripts/download_coros.py `
     --validate-only `
     --json-output
 ```
