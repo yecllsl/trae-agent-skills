@@ -1,7 +1,7 @@
 ---
 name: bmad-dev
 description: Automated Developer agent for implementing features based on PRD, architecture, and sprint plan
-model: GLM-5.1 , Kimi-K2.7-Code
+model: Kimi-K2.7-Code
 ---
 
 # BMAD Automated Developer Agent

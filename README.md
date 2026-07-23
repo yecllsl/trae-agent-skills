@@ -1,18 +1,20 @@
-# Trae 敏捷开发规范与工作流
+# Trae 生产级工程技能
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Agents](https://img.shields.io/badge/agents-7-blue.svg)]()
 [![Skills](https://img.shields.io/badge/skills-14-green.svg)]()
-[![Commands](https://img.shields.io/badge/commands-3-orange.svg)]()
+[![Commands](https://img.shields.io/badge/commands-7-orange.svg)]()
 
-一套**针对 Trae CN IDE（SOLO Agent 模式）的 Agentic AI 编程敏捷开发规范与工作流定义**，将软件工程六阶段（需求、设计、开发、测试、部署、维护）封装为可执行流水线，由 Coordinator 编排 7 个专业 Subagent 协作完成，全程质量门控。
+一套**适用于 TRAE AI coding Agent 的生产级工程技能**。这些技能规范了软件构建过程中高级工程师所使用的流程、质量控制标准以及最佳实践，并被整合到 Agent 中，以便其在开发的每个阶段都能一致地遵循这些规范。
+
+具体落地为：将软件工程六阶段（需求、设计、开发、测试、部署、维护）封装为可执行流水线，由 Coordinator 编排 7 个专业 Subagent 协作完成，全程质量门控。
 
 ## 项目定位
 
-本项目不是 Skill 集合仓库，而是一套**完整的 Agentic AI 开发方法论**：
+本项目为 TRAE AI coding Agent 提供生产级工程技能，整合方式如下：
 
-- **规范层**：角色职责、工作流状态机、质量门控、异常回退
-- **执行层**：3 个快捷命令驱动完整生命周期
+- **规范层**：高级工程师的流程、质量控制标准、最佳实践（整合到 Agent 与 Skill 中）
+- **执行层**：7 个快捷命令（6 阶段 + 1 组合）驱动完整生命周期
 - **能力层**：14 个方法论 Skill + 7 个 BMAD Subagent
 - **约束层**：6 类规则（项目/安全/合规/质量/流程/YAGNI）
 
@@ -68,7 +70,7 @@ flowchart TB
 | 1. 需求分析 | bmad-po | `01-product-requirements.md` | PRD 质量 ≥90 + 用户审批 |
 | 2. 设计 | bmad-architect + bmad-sm | `02-system-architecture.md` / `03-sprint-plan.md` | 架构质量 ≥90 + 用户审批 |
 | 3. 开发 | bmad-dev + bmad-review | 源码 + 单测 + `04-dev-reviewed.md` | TDD 循环 + Review 通过 |
-| 4. 测试 | bmad-qa | 测试报告 | 测试套件通过 + 覆盖率达标 |
+| 4. 测试 | bmad-qa | `05-test-report.md` | 测试套件通过 + 覆盖率达标 |
 | 5. 部署 | Coordinator | 发布包 + CHANGELOG | CI/CD 通过 + 版本号一致 |
 | 6. 维护 | bmad-dev | 修复 + 回归测试 | 根因定位 + 修复验证 |
 
@@ -91,11 +93,17 @@ flowchart TB
 
 ## 快捷命令
 
-| 命令 | 用途 | 选项 |
-|------|------|------|
-| `/bmad-pilot <描述>` | 启动完整开发流程 | `--skip-tests` / `--direct-dev` / `--skip-scan` |
-| `/bmad-fix <Bug 描述>` | Bug 修复（systematic-debugging + TDD） | `--direct-fix` / `--skip-regression` |
-| `/bmad-refine <target>` | 精炼 PRD / 架构 / Sprint 计划 | `--feature <name>` / `--skip-approval` |
+6 个阶段命令各自独立可执行（支持 refinement 复用），1 个组合命令编排完整流水线：
+
+| 命令 | 阶段 | 用途 | 关键选项 |
+|------|------|------|---------|
+| `/bmad-requirements <描述>` | 1 需求 | PRD 生成与精炼 | `--feature` / `--skip-scan` |
+| `/bmad-design` | 2 设计 | 架构 + Sprint 计划 | `--feature` / `--direct-dev` / `--target` |
+| `/bmad-development` | 3 开发 | TDD 实现 + Code Review | `--feature` / `--skip-review` / `--max-iterations` |
+| `/bmad-testing` | 4 测试 | QA 测试 + 回归 | `--feature` / `--skip-e2e` / `--skip-security` |
+| `/bmad-deployment` | 5 部署 | 版本 + CI + Tag | `--feature` / `--version` / `--skip-ci` |
+| `/bmad-maintenance <Bug>` | 6 维护 | systematic-debugging + TDD 修复 | `--feature` / `--direct-fix` / `--skip-regression` |
+| `/bmad-pipeline <描述>` | 组合 | 编排阶段 1-5 完整流水线 | `--from` / `--to` / 透传各阶段选项 |
 
 ## 方法论 Skill（14 个）
 
@@ -121,7 +129,7 @@ flowchart TB
 ```
 .trae/
 ├── agents/          # 7 个 BMAD Subagent 定义
-├── commands/        # 3 个快捷命令
+├── commands/        # 7 个快捷命令（6 阶段 + 1 组合）
 ├── rules/           # 6 类规则（项目/安全/合规/质量/流程/YAGNI）
 ├── skills/          # 14 个方法论 Skill
 └── 开发流程规范.md   # 统一流程手册（37KB，六阶段+门控+异常处理+长任务模板）
@@ -146,32 +154,45 @@ cd trae-agent-skills
 2. [.trae/开发流程规范.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/开发流程规范.md) — 六阶段工作流与质量门控
 3. [.trae/rules/project-rules.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/rules/project-rules.md) — Coordinator 规则
 
-### 3. 启动开发流程
+### 3. 启动完整开发流水线
 
 在 Trae CN IDE 中输入：
 
 ```
-/bmad-pilot 添加一个用户认证模块，支持 JWT 和 OAuth2
+/bmad-pipeline 添加一个用户认证模块，支持 JWT 和 OAuth2
 ```
 
-Coordinator 将自动编排：仓库扫描 → PRD → 架构 → Sprint 计划 → 开发 → 审查 → 测试。
+Coordinator 将自动编排六阶段流程：需求 → 设计 → 开发 → 测试 → 部署，阶段间设 STOP POINT 等待确认。
 
-### 4. 单独精炼已有规格
+### 4. 单独执行某个阶段
 
-```
-/bmad-refine prd --feature user-auth
-```
-
-### 5. Bug 修复
+每个阶段命令可独立运行，适合增量开发或精炼已有规格：
 
 ```
-/bmad-fix 登录接口在并发场景下偶发 500 错误
+/bmad-requirements 添加数据导出功能，支持 CSV 和 JSON
+/bmad-design --feature data-export
+/bmad-development --feature data-export
+```
+
+### 5. 断点续跑
+
+流水线中断后可从指定阶段恢复：
+
+```
+/bmad-pipeline 添加数据导出功能 --feature data-export --from testing
+```
+
+### 6. Bug 修复
+
+```
+/bmad-maintenance 登录接口在并发场景下偶发 500 错误
 ```
 
 ## 核心设计原则
 
 | 原则 | 说明 |
 |------|------|
+| **规范整合到 Agent** | 流程、质量标准、最佳实践整合到 Agent 与 Skill，确保每阶段一致遵循 |
 | **Rules 先行** | 任何操作前检查规则约束 |
 | **Skills 指导** | 根据任务类型激活对应 Skill |
 | **Subagents 执行** | 复杂任务委派专业代理，主 Agent 仅协调 |

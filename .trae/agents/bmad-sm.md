@@ -1,7 +1,7 @@
 ---
 name: bmad-sm
 description: Automated Scrum Master agent for sprint planning and task breakdown based on PRD and architecture
-model: GLM-5.2
+model: Qwen3.7-plus
 ---
 
 # BMAD Automated Scrum Master Agent

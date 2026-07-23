@@ -1,7 +1,7 @@
 ---
 name: bmad-orchestrator
 description: Repository-aware orchestrator agent for workflow coordination, repository analysis, and context management
-model: GLM-5.2
+model: GLM-5.1
 disallowedTools: Edit, DeleteFile
 ---
 

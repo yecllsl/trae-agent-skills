@@ -1,6 +1,6 @@
-# Code Wiki — Trae 敏捷开发规范与工作流
+# Code Wiki — Trae 生产级工程技能
 
-> **版本**: v2.0.0 | **许可证**: MIT
+> **版本**: v2.1.0 | **许可证**: MIT
 > 最后更新: 2026-07-23
 
 ---
@@ -27,12 +27,15 @@
 
 ## 1. 项目概述
 
-本项目是一套**针对 Trae CN IDE（SOLO Agent 模式）的 Agentic AI 编程敏捷开发规范与工作流定义**。它不是传统的代码仓库，而是一套方法论体系，通过规范层、执行层、能力层、约束层的协同，让 AI Agent 能够以工程化方式完成软件开发全生命周期。
+本项目是一套**适用于 TRAE AI coding Agent 的生产级工程技能**。这些技能规范了软件构建过程中高级工程师所使用的流程、质量控制标准以及最佳实践，并被整合到 Agent 中，以便其在开发的每个阶段都能一致地遵循这些规范。
+
+它不是传统的代码仓库，而是一套工程技能体系，通过规范层、执行层、能力层、约束层的协同，让 AI Agent 能够以工程化方式完成软件开发全生命周期。
 
 ### 1.1 核心定位
 
-- **目标**: 在 Trae CN SOLO Agent 环境下，实现高效协作、快速迭代、质量可控的 Agentic AI 编程
-- **核心产物**: 角色体系 + 全流程工作流 + 质量门控 + 快捷命令 + 方法论 Skill
+- **目标**: 为 TRAE AI coding Agent 提供生产级工程技能，使其在每个开发阶段一致遵循高级工程师的流程、质量控制标准与最佳实践
+- **核心产物**: 工程技能规范（流程 + 质量标准 + 最佳实践）+ 角色体系 + 全流程工作流 + 质量门控 + 快捷命令
+- **整合方式**: 规范整合到 Agent 定义与 Skill 中，由 Agent 在各阶段一致执行
 - **适用环境**: Trae CN IDE（SOLO Agent 模式）
 
 ### 1.2 技术栈
@@ -61,9 +64,8 @@ graph TB
     end
 
     subgraph "执行层 (.trae/commands/)"
-        CMD1[bmad-pilot]
-        CMD2[bmad-fix]
-        CMD3[bmad-refine]
+        CMD1[6 阶段命令]
+        CMD2[1 组合命令<br/>bmad-pipeline]
     end
 
     subgraph "能力层"
@@ -78,10 +80,8 @@ graph TB
     B --> SPEC
     B --> CMD1
     B --> CMD2
-    B --> CMD3
     CMD1 --> AGENTS
-    CMD2 --> AGENTS
-    CMD3 --> AGENTS
+    CMD2 --> CMD1
     AGENTS --> SKILLS
     B --> RULES
     AGENTS --> RULES
@@ -118,10 +118,14 @@ trae-agent-skills/
 │   │   ├── bmad-qa.md                  # 测试工程师（Playwright）
 │   │   ├── bmad-review.md              # 代码审查（禁用 Edit）
 │   │   └── bmad-sm.md                  # Scrum Master（Sprint 规划）
-│   ├── commands/                       # 3 个快捷命令
-│   │   ├── bmad-pilot.md              # 完整开发流程
-│   │   ├── bmad-fix.md                # Bug 修复流程
-│   │   └── bmad-refine.md             # 精炼 PRD/架构/计划
+│   ├── commands/                       # 快捷命令（6 阶段 + 1 组合）
+│   │   ├── bmad-requirements.md       # 阶段1：需求分析
+│   │   ├── bmad-design.md             # 阶段2：设计（架构+Sprint）
+│   │   ├── bmad-development.md        # 阶段3：开发（TDD+Review）
+│   │   ├── bmad-testing.md            # 阶段4：测试（QA+回归）
+│   │   ├── bmad-deployment.md         # 阶段5：部署（版本+CI+Tag）
+│   │   ├── bmad-maintenance.md        # 阶段6：维护（调试+修复）
+│   │   └── bmad-pipeline.md           # 组合命令：编排阶段 1-5
 │   ├── rules/                          # 6 类规则
 │   │   ├── project-rules.md           # 项目规则（含 Coordinator 规则）
 │   │   ├── security-rules.md          # 安全规则
@@ -275,11 +279,25 @@ trae-agent-skills/
 
 ### 4.5 快捷命令
 
-| 命令 | 文件 | 用途 | 选项 |
-|------|------|------|------|
-| `/bmad-pilot` | [bmad-pilot.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-pilot.md) | 完整开发流程 | `--skip-tests` / `--direct-dev` / `--skip-scan` |
-| `/bmad-fix` | [bmad-fix.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-fix.md) | Bug 修复 | `--direct-fix` / `--skip-regression` |
-| `/bmad-refine` | [bmad-refine.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-refine.md) | 精炼规格 | `--feature <name>` / `--skip-approval` |
+6 个阶段命令各自独立可执行（支持 refinement 复用），1 个组合命令编排完整流水线：
+
+| 命令 | 阶段 | 文件 | 用途 | 关键选项 |
+|------|------|------|------|---------|
+| `/bmad-requirements` | 1 需求 | [bmad-requirements.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-requirements.md) | PRD 生成与精炼 | `--feature` / `--skip-scan` |
+| `/bmad-design` | 2 设计 | [bmad-design.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-design.md) | 架构 + Sprint 计划 | `--feature` / `--direct-dev` / `--target` |
+| `/bmad-development` | 3 开发 | [bmad-development.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-development.md) | TDD 实现 + Code Review | `--feature` / `--skip-review` / `--max-iterations` |
+| `/bmad-testing` | 4 测试 | [bmad-testing.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-testing.md) | QA 测试 + 回归 | `--feature` / `--skip-e2e` / `--skip-security` |
+| `/bmad-deployment` | 5 部署 | [bmad-deployment.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-deployment.md) | 版本 + CI + Tag | `--feature` / `--version` / `--skip-ci` |
+| `/bmad-maintenance` | 6 维护 | [bmad-maintenance.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-maintenance.md) | systematic-debugging + TDD 修复 | `--feature` / `--direct-fix` / `--skip-regression` |
+| `/bmad-pipeline` | 组合 | [bmad-pipeline.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/commands/bmad-pipeline.md) | 编排阶段 1-5 完整流水线 | `--from` / `--to` / 透传各阶段选项 |
+
+#### 命令设计模式
+
+- **阶段命令独立可执行**：每个阶段命令可单独运行，适合增量开发
+- **Refinement 复用**：阶段命令检测到已有产出文档时自动进入精炼模式
+- **组合命令编排**：`bmad-pipeline` 按正确顺序调用阶段 1-5，管理阶段间边界与失败回退
+- **断点续跑**：`--from <stage>` 从指定阶段恢复执行
+- **维护阶段独立**：Phase 6（maintenance）不在 pipeline 内，按需触发
 
 ### 4.6 规则体系
 
@@ -333,7 +351,8 @@ sequenceDiagram
     participant R as bmad-review
     participant QA as bmad-qa
 
-    U->>C: /bmad-pilot 需求描述
+    U->>C: /bmad-pipeline 需求描述
+    Note over C: 调用 /bmad-requirements
     C->>O: 仓库扫描
     O-->>C: 00-repo-scan.md
 
@@ -348,6 +367,7 @@ sequenceDiagram
     U-->>C: yes
     C->>PO: 保存 01-product-requirements.md
 
+    Note over C: 调用 /bmad-design
     loop 架构质量评分 < 90
         C->>A: 设计架构+生成问题
         A-->>C: 架构草案+问题
@@ -365,6 +385,7 @@ sequenceDiagram
     U-->>C: yes
     C->>SM: 保存 03-sprint-plan.md
 
+    Note over C: 调用 /bmad-development
     C->>D: TDD 实现
     D-->>C: 源码+单测
     C->>R: 代码审查
@@ -376,8 +397,12 @@ sequenceDiagram
         C->>R: 重新审查
     end
 
+    Note over C: 调用 /bmad-testing
     C->>QA: 测试执行
-    QA-->>C: 测试报告
+    QA-->>C: 05-test-report.md
+
+    Note over C: 调用 /bmad-deployment
+    C->>C: 版本一致性+CI+Tag
     C-->>U: 完成报告
 ```
 
@@ -426,9 +451,8 @@ graph LR
     end
 
     subgraph "执行层"
-        CMD1[bmad-pilot.md] -->|遵循| SPEC
-        CMD2[bmad-fix.md] -->|遵循| SPEC
-        CMD3[bmad-refine.md] -->|遵循| SPEC
+        PIPE[bmad-pipeline.md] -->|编排| PHASES[6 个阶段命令]
+        PHASES -->|遵循| SPEC
     end
 
     subgraph "文档层"
@@ -462,29 +486,46 @@ git clone https://github.com/yecllsl/trae-agent-skills.git
 cd trae-agent-skills
 ```
 
-### 7.2 启动完整开发流程
+### 7.2 启动完整开发流水线
 
 在 Trae CN IDE 中输入：
 
 ```
-/bmad-pilot 添加一个用户认证模块，支持 JWT 和 OAuth2
+/bmad-pipeline 添加一个用户认证模块，支持 JWT 和 OAuth2
 ```
 
-Coordinator 将自动编排六阶段流程。
+Coordinator 将自动编排六阶段流程（需求 → 设计 → 开发 → 测试 → 部署），阶段间设 STOP POINT 等待确认。
 
-### 7.3 Bug 修复
+### 7.3 单独执行某个阶段
 
+每个阶段命令可独立运行，适合增量开发或精炼已有规格：
+
+```powershell
+# 阶段1：需求分析
+/bmad-requirements 添加数据导出功能，支持 CSV 和 JSON
+
+# 阶段2：设计（精炼已有架构）
+/bmad-design --feature data-export --target arch
+
+# 阶段3：开发
+/bmad-development --feature data-export
 ```
-/bmad-fix 登录接口在并发场景下偶发 500 错误
+
+### 7.4 断点续跑
+
+流水线中断后可从指定阶段恢复：
+
+```powershell
+/bmad-pipeline 添加数据导出功能 --feature data-export --from testing
 ```
 
-### 7.4 精炼已有规格
+### 7.5 Bug 修复
 
-```
-/bmad-refine prd --feature user-auth
+```powershell
+/bmad-maintenance 登录接口在并发场景下偶发 500 错误
 ```
 
-### 7.5 验证 Skill 结构
+### 7.6 验证 Skill 结构
 
 ```powershell
 # 验证所有 Skills
@@ -538,6 +579,7 @@ mcpServers:                    # 可选，允许调用的 MCP Server
 
 | 原则 | 说明 |
 |------|------|
+| **规范整合到 Agent** | 流程、质量标准、最佳实践整合到 Agent 与 Skill，确保每阶段一致遵循 |
 | **Rules 先行** | 任何操作前检查规则约束 |
 | **Skills 指导** | 根据任务类型激活对应 Skill |
 | **Subagents 执行** | 复杂任务委派专业代理，主 Agent 仅协调 |
@@ -556,4 +598,4 @@ mcpServers:                    # 可选，允许调用的 MCP Server
 
 ---
 
-> **经验总结**: 本项目的核心设计思想是"规范即代码"——通过 Markdown 文档定义工作流状态机、YAML frontmatter 配置 Agent 行为、Skill 封装方法论，让 AI Agent 能够以工程化、可审计、可回退的方式完成软件开发全生命周期。所有规范都可被 Trae CN IDE 直接加载执行，无需额外运行时。
+> **经验总结**: 本项目的核心设计思想是"规范即技能"——将高级工程师的流程、质量控制标准与最佳实践整合到 Agent 定义与 Skill 中，通过 Markdown 文档定义工作流状态机、YAML frontmatter 配置 Agent 行为、Skill 封装方法论，让 AI Agent 在开发的每个阶段都能一致地遵循这些生产级工程规范。所有技能都可被 Trae CN IDE 直接加载执行，无需额外运行时。
