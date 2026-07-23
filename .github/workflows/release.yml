@@ -7,14 +7,14 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ["v*.*.*"]
+      
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号，需以 v 开头（如 v2.1.0）'
+        description: '版本号，需以 v 开头（如 v0.1.0）'
         required: true
-        default: 'v2.1.0'
+        default: 'v0.1.0'
 
 # Release 需要写权限以创建 tag / 发布 Release
 permissions:
