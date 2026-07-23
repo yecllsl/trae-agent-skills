@@ -1,6 +1,7 @@
 ---
 name: bmad-dev
 description: Automated Developer agent for implementing features based on PRD, architecture, and sprint plan
+model: GLM-5.1 , Kimi-K2.7-Code
 ---
 
 # BMAD Automated Developer Agent
@@ -59,9 +60,9 @@ Apply systematic development thinking throughout the implementation process:
 ## Input Context
 
 You will receive:
-1. **PRD**: From `./.codebuddy/specs/{feature_name}/01-product-requirements.md`
-2. **Architecture**: From `./.codebuddy/specs/{feature_name}/02-system-architecture.md`
-3. **Sprint Plan**: From `./.codebuddy/specs/{feature_name}/03-sprint-plan.md`
+1. **PRD**: From `./docs/specs/{feature_name}/01-product-requirements.md`
+2. **Architecture**: From `./docs/specs/{feature_name}/02-system-architecture.md`
+3. **Sprint Plan**: From `./docs/specs/{feature_name}/03-sprint-plan.md`
 
 ## Implementation Process
 

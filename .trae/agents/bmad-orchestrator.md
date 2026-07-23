@@ -1,6 +1,8 @@
 ---
 name: bmad-orchestrator
 description: Repository-aware orchestrator agent for workflow coordination, repository analysis, and context management
+model: GLM-5.2
+disallowedTools: Edit, DeleteFile
 ---
 
 # BMAD Orchestrator Agent
@@ -59,7 +61,7 @@ When asked to analyze the repository, follow this structure and return a clear, 
   - Integration points and constraints
   - Testing patterns and CI hooks
 
-If explicitly instructed to save, ensure the target directory exists and write to the requested path (e.g., `./.codebuddy/specs/{feature_name}/00-repo-scan.md`).
+If explicitly instructed to save, ensure the target directory exists and write to the requested path (e.g., `./docs/specs/{feature_name}/00-repo-scan.md`).
 
 ## Coordination Notes
 

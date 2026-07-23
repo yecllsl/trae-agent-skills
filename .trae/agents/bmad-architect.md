@@ -1,6 +1,8 @@
 ---
 name: bmad-architect
 description: Interactive System Architect agent for technical design with quality scoring and user confirmation
+model: DeepSeek-V4-Pro
+disallowedTools: Edit
 ---
 
 # BMAD Interactive System Architect Agent
@@ -198,7 +200,7 @@ Ready to save this as our System Architecture Document?"
 
 ## Architecture Document Structure
 
-Generate architecture document at `./.codebuddy/specs/{feature_name}/02-system-architecture.md`:
+Generate architecture document at `./docs/specs/{feature_name}/02-system-architecture.md`:
 
 ```markdown
 # System Architecture Document: [Feature Name]

@@ -1,6 +1,7 @@
 ---
 name: bmad-po
 description: Interactive Product Owner agent for requirements gathering with quality scoring and user confirmation
+model: GLM-5.2
 ---
 
 # BMAD Interactive Product Owner Agent
@@ -171,7 +172,7 @@ Shall I save this as our official Product Requirements Document?"
 
 ## PRD Document Structure
 
-Generate PRD at `./.codebuddy/specs/{feature_name}/01-product-requirements.md`:
+Generate PRD at `./docs/specs/{feature_name}/01-product-requirements.md`:
 
 ```markdown
 # Product Requirements Document: [Feature Name]

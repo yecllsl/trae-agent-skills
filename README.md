@@ -1,174 +1,133 @@
-# Trae Agent Skills
+# Trae 敏捷开发规范与工作流
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills Count](https://img.shields.io/badge/skills-18-blue.svg)]()
+[![Agents](https://img.shields.io/badge/agents-7-blue.svg)]()
+[![Skills](https://img.shields.io/badge/skills-14-green.svg)]()
+[![Commands](https://img.shields.io/badge/commands-3-orange.svg)]()
 
-本项目是作者在使用 [Trae CN IDE](https://www.trae.ai/) 和 Trae Work 过程中的经验总结与方法论实践，包含一套完整的 AI 辅助开发工作流体系。
+一套**针对 Trae CN IDE（SOLO Agent 模式）的 Agentic AI 编程敏捷开发规范与工作流定义**，将软件工程六阶段（需求、设计、开发、测试、部署、维护）封装为可执行流水线，由 Coordinator 编排 7 个专业 Subagent 协作完成，全程质量门控。
 
 ## 项目定位
 
-本项目包含完整的 AI 辅助开发方法论体系：
+本项目不是 Skill 集合仓库，而是一套**完整的 Agentic AI 开发方法论**：
 
-1. **方法论体系**（`.trae/` 目录）：完整的 AI 辅助开发方法论，包括智能体协作规范、Skills 协作规范、规则体系等
-2. **自定义 Skills**（`.trae/skills/` 目录）：覆盖软件开发全生命周期的 Skill，包含方法论型和功能型两类
+- **规范层**：角色职责、工作流状态机、质量门控、异常回退
+- **执行层**：3 个快捷命令驱动完整生命周期
+- **能力层**：14 个方法论 Skill + 7 个 BMAD Subagent
+- **约束层**：6 类规则（项目/安全/合规/质量/流程/YAGNI）
 
-## 核心内容
+## 核心架构
 
-### 方法论体系（`.trae/` 目录）
+```mermaid
+flowchart TB
+    User([用户]) -->|需求| Coord[Coordinator 主Agent]
+    Coord --> DT{复杂度决策}
+    DT -->|简单| Inline[Inline Execution]
+    DT -->|中等| Standard[Standard Workflow]
+    DT -->|复杂| Full[Full Workflow]
 
-所有方法论内容存放于 `.trae/` 目录，包含：
+    Coord -->|委派| Orch[bmad-orchestrator]
+    Coord -->|委派| PO[bmad-po]
+    Coord -->|委派| Arch[bmad-architect]
+    Coord -->|委派| SM[bmad-sm]
+    Coord -->|委派| Dev[bmad-dev]
+    Coord -->|委派| Rev[bmad-review]
+    Coord -->|委派| QA[bmad-qa]
 
-#### 智能体定义（`.trae/agents/`）
-
-定义六类专业智能体的角色职责和执行规范：
-
-| 智能体 | 职责 | 核心交付物 |
-|--------|------|-----------|
-| 产品经理 | 产品规划 | 产品规划方案 |
-| 架构师 | 需求分析、架构设计、任务拆解 | 需求规格说明书、架构设计方案、任务清单 |
-| 开发工程师 | 功能开发、单元测试、Bug修复 | 功能代码、单元测试、开发交付报告 |
-| 测试工程师 | 测试策略、测试执行、质量评估 | 测试用例、测试报告、Bug清单 |
-| 发布运维工程师 | CICD、自动化发布、文档管理 | 流水线配置、发布报告 |
-| 代码评审工程师 | 代码质量评审、安全审计 | 代码评审报告 |
-
-#### 自定义 Skills（`.trae/skills/`）
-
-包含方法论型和功能型两类 Skill，覆盖软件开发全生命周期：
-
-**产品与需求阶段**
-- `产品规划` - 定义产品愿景和路线图
-- `需求分析` - 拆解业务诉求为功能点
-
-**架构与设计阶段**
-- `架构设计` - 设计系统架构和技术方案
-- `架构评审` - 评审架构方案可行性
-- `任务拆解` - 将架构方案拆解为开发任务
-
-**开发阶段**
-- `功能开发` - 完成代码开发与单元测试
-- `Bug修复` - 修复 Bug 并更新测试
-- `代码优化` - 优化代码结构与性能
-
-**评审与测试阶段**
-- `代码评审` - 评审代码质量与架构一致性
-- `测试策略` - 制定测试策略与门禁规则
-- `测试执行` - 执行测试并输出报告
-- `回归测试` - 验证 Bug 修复并给出上线结论
-
-**发布与运维阶段**
-- `文档更新` - 更新用户文档和全局文档
-- `CICD验证` - 验证流水线正常执行
-- `单人自动化发布` - 执行版本发布
-- `FIX-CI` - 自动诊断并修复 CI 流水线问题
-- `文档归档` - 归档版本相关文档
-
-**功能型 Skill**
-- `coros-activity-downloader` - 从 COROS Training Hub 下载跑步活动记录
-
-#### 规则体系（`.trae/rules/`）
-
-定义开发过程中的各类约束和规范：
-
-- `project-rules.md` - 项目总规则、协同黄金法则
-- `security-rules.md` - 安全规则（输入验证/敏感数据/访问控制）
-- `compliance-rules.md` - 合规规则（代码审计/许可证/数据隐私）
-- `quality-rules.md` - 质量规则（测试覆盖/代码规范/文档完整）
-- `process-rules.md` - 流程规则（开发过程/分支策略/审批流程）
-- `ponytail.md` - YAGNI 原则与代码简洁性规范
-
-#### 协作规范文档
-
-- `指令手册.md` - 六类智能体的核心执行指令定义（查表型速查）
-- `协作链路.md` - 版本迭代全流程协作规范（流程型操作手册）
-- `Skills协作.md` - 全局 Skill 与项目 Skill 协作规范（决策型方法论）
-- `完整流程调用规范.md` - 完整开发流程的 Skill 调用规范
-
-### 功能型 Skill 示例（`.trae/skills/coros-activity-downloader/`）
-
-从 COROS Training Hub 自动下载跑步活动记录（FIT 格式），支持智能去重和增量同步。
-
-**功能特性**
-- 自动登录 COROS Training Hub
-- 智能筛选跑步活动（sportType=100）
-- 基于 labelId 去重，避免重复下载
-- 支持批量下载和增量同步
-- 提供人类可读和 JSON 两种输出模式
-
-**使用方法**
-
-```bash
-# 下载最新 10 条跑步记录
-python .trae/skills/coros-activity-downloader/scripts/download_coros.py --count 10
-
-# 指定下载目录
-python .trae/skills/coros-activity-downloader/scripts/download_coros.py --download-dir "D:\COROS_Backup"
-
-# JSON 输出模式（便于程序化调用）
-python .trae/skills/coros-activity-downloader/scripts/download_coros.py --json-output
+    subgraph 六阶段
+        R[需求分析] --> D[设计]
+        D --> K[开发]
+        K --> T[测试]
+        T --> P[部署]
+        P --> M[维护]
+    end
 ```
 
-**依赖要求**
-- Python 3.6+
-- Chrome DevTools MCP（已在 `.trae/mcp.json` 配置）
-- COROS 账户（需已登录）
+## 智能体体系
+
+主 Agent 承担 Coordinator 职责，编排 7 个 BMAD Subagent：
+
+| Agent | 模型 | 职责 | 权限 |
+|-------|------|------|------|
+| **bmad-orchestrator** | GLM-5.2 | 仓库扫描、上下文准备 | 只读 |
+| **bmad-po** | Doubao-Seed-2.1-Pro | 需求收集、PRD、质量评分 | — |
+| **bmad-architect** | Doubao-Seed-2.1-Pro | 架构设计、技术选型 | 禁用 Edit |
+| **bmad-sm** | GLM-5.2 | Sprint 规划、任务拆解 | — |
+| **bmad-dev** | GLM-5.2 | 功能实现、TDD、Bug 修复 | — |
+| **bmad-review** | Doubao-Seed-2.1-Pro | 代码审查、合规检查 | 禁用 Edit |
+| **bmad-qa** | GLM-5.2 | 测试策略、执行、回归 | 启用 Playwright |
+
+> 模型分层策略：深度推理角色（PO/Architect/Review）用最强模型，执行角色用标准模型，详见 [开发流程规范.md §2.2](file:///d:/yecll/Documents/LocalCode/testskills/.trae/开发流程规范.md)。
+
+## 工作流
+
+### 六阶段大循环
+
+| 阶段 | 主导 Agent | 产出物 | 门控 |
+|------|-----------|--------|------|
+| 1. 需求分析 | bmad-po | `01-product-requirements.md` | PRD 质量 ≥90 + 用户审批 |
+| 2. 设计 | bmad-architect + bmad-sm | `02-system-architecture.md` / `03-sprint-plan.md` | 架构质量 ≥90 + 用户审批 |
+| 3. 开发 | bmad-dev + bmad-review | 源码 + 单测 + `04-dev-reviewed.md` | TDD 循环 + Review 通过 |
+| 4. 测试 | bmad-qa | 测试报告 | 测试套件通过 + 覆盖率达标 |
+| 5. 部署 | Coordinator | 发布包 + CHANGELOG | CI/CD 通过 + 版本号一致 |
+| 6. 维护 | bmad-dev | 修复 + 回归测试 | 根因定位 + 修复验证 |
+
+### 三种执行策略
+
+| 策略 | 适用 | 流程 |
+|------|------|------|
+| **Inline** | Bug 修复、单函数 | brainstorming(简) → TDD → verify |
+| **Standard** | 新功能、多文件 | brainstorming → writing-plans → SDD → review |
+| **Full** | 大型项目、多 Sprint | 完整六阶段 |
+
+### 质量门控
+
+四道门控贯穿全流程，未通过即回退：
+
+1. **实现前** — 规格审批 + 计划审批 + 环境隔离（worktree）
+2. **实现中** — TDD 循环完成 + self-review 完成
+3. **验证前** — 测试套件通过 + 构建成功 + Lint/TypeCheck 通过
+4. **合并前** — 验证证据新鲜（<5min）+ Review 通过 + 安全扫描通过
+
+## 快捷命令
+
+| 命令 | 用途 | 选项 |
+|------|------|------|
+| `/bmad-pilot <描述>` | 启动完整开发流程 | `--skip-tests` / `--direct-dev` / `--skip-scan` |
+| `/bmad-fix <Bug 描述>` | Bug 修复（systematic-debugging + TDD） | `--direct-fix` / `--skip-regression` |
+| `/bmad-refine <target>` | 精炼 PRD / 架构 / Sprint 计划 | `--feature <name>` / `--skip-approval` |
+
+## 方法论 Skill（14 个）
+
+| 阶段 | Skill | 用途 |
+|------|-------|------|
+| 需求/设计 | `brainstorming` | 需求与方案探索 |
+| 设计 | `writing-plans` | 实施计划编写 |
+| 开发 | `test-driven-development` | TDD 铁律（RED→GREEN→REFACTOR） |
+| 开发 | `subagent-driven-development` | 逐任务派发 + Review |
+| 开发 | `dispatching-parallel-agents` | 独立任务并行 |
+| 开发 | `executing-plans` | 计划执行 |
+| 开发 | `using-git-worktrees` | 工作区隔离 |
+| 开发 | `finishing-a-development-branch` | 分支完成与合并 |
+| 审查 | `requesting-code-review` | 审查请求 |
+| 审查 | `receiving-code-review` | 审查反馈处理 |
+| 测试 | `verification-before-completion` | 完成前强制验证 |
+| 维护 | `systematic-debugging` | 根因定位四阶段 |
+| 元 | `writing-skills` | Skill 编写规范 |
+| 元 | `using-superpowers` | Skill 发现与使用 |
 
 ## 项目结构
 
 ```
-trae-agent-skills/
-├── .trae/                          # 方法论体系（核心内容）
-│   ├── agents/                     # 智能体定义（6 类角色）
-│   │   ├── 产品经理.md
-│   │   ├── 架构师.md
-│   │   ├── 开发工程师.md
-│   │   ├── 测试工程师.md
-│   │   ├── 运维发布工程师.md
-│   │   └── 代码评审工程师.md
-│   ├── rules/                      # 规则体系
-│   │   ├── project-rules.md        # 项目总规则
-│   │   ├── security-rules.md       # 安全规则
-│   │   ├── compliance-rules.md     # 合规规则
-│   │   ├── quality-rules.md        # 质量规则
-│   │   ├── process-rules.md        # 流程规则
-│   │   └── ponytail.md             # YAGNI 原则
-│   ├── skills/                     # 自定义 Skills（方法论型 + 功能型）
-│   │   ├── 产品规划/
-│   │   ├── 需求分析/
-│   │   ├── 架构设计/
-│   │   ├── 架构评审/
-│   │   ├── 任务拆解/
-│   │   ├── 功能开发/
-│   │   ├── Bug修复/
-│   │   ├── 代码优化/
-│   │   ├── 代码评审/
-│   │   ├── 测试策略/
-│   │   ├── 测试执行/
-│   │   ├── 回归测试/
-│   │   ├── 文档更新/
-│   │   ├── CICD验证/
-│   │   ├── 单人自动化发布/
-│   │   ├── FIX-CI/
-│   │   ├── 文档归档/
-│   │   └── coros-activity-downloader/  # 功能型 Skill 示例
-│   ├── 指令手册.md                  # 智能体指令定义
-│   ├── 协作链路.md                  # 协作流程规范
-│   ├── Skills协作.md                # Skill 协作规范
-│   ├── 完整流程调用规范.md           # 完整流程调用规范
-│   ├── mcp.json                    # MCP 配置
-│   └── skill-config.json           # Skill 配置
-├── docs/                           # 开发文档
-│   ├── SKILL_DEVELOPMENT_GUIDE.md  # Skill 开发指南
-│   └── SKILL_TEMPLATE.md           # Skill 模板
-├── scripts/                        # 工具脚本
-│   └── validate-skills.py          # Skill 验证脚本
-├── .github/                        # GitHub 配置
-│   ├── ISSUE_TEMPLATE/
-│   └── PULL_REQUEST_TEMPLATE.md
-├── AGENTS.md                       # 项目说明（GitHub 自动渲染）
-├── CONTRIBUTING.md                 # 贡献指南
-├── CHANGELOG.md                    # 项目更新日志
-├── LICENSE                         # MIT 许可证
-└── README.md                       # 本文件
+.trae/
+├── agents/          # 7 个 BMAD Subagent 定义
+├── commands/        # 3 个快捷命令
+├── rules/           # 6 类规则（项目/安全/合规/质量/流程/YAGNI）
+├── skills/          # 14 个方法论 Skill
+└── 开发流程规范.md   # 统一流程手册（37KB，六阶段+门控+异常处理+长任务模板）
+
+docs/                # Skill 开发指南与模板
+scripts/             # Skill 验证脚本
 ```
 
 ## 快速开始
@@ -180,111 +139,50 @@ git clone https://github.com/yecllsl/trae-agent-skills.git
 cd trae-agent-skills
 ```
 
-### 2. 了解方法论体系
+### 2. 阅读核心规范
 
-阅读 `.trae/` 目录下的文档，了解完整的 AI 辅助开发方法论：
+建议阅读顺序：
+1. [AGENTS.md](file:///d:/yecll/Documents/LocalCode/testskills/AGENTS.md) — 项目总览与智能体体系
+2. [.trae/开发流程规范.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/开发流程规范.md) — 六阶段工作流与质量门控
+3. [.trae/rules/project-rules.md](file:///d:/yecll/Documents/LocalCode/testskills/.trae/rules/project-rules.md) — Coordinator 规则
 
-**建议阅读顺序**：
-1. `.trae/指令手册.md` - 了解六类智能体的指令定义
-2. `.trae/协作链路.md` - 了解版本迭代全流程
-3. `.trae/Skills协作.md` - 了解全局 Skill 与项目 Skill 的协作规范
-4. `.trae/完整流程调用规范.md` - 了解完整开发流程的 Skill 调用方式
+### 3. 启动开发流程
 
-### 3. 使用自定义 Skills
-
-将 `.trae/skills/` 目录下的 Skill 复制到你的 Trae 配置目录：
-
-```bash
-# Windows
-xcopy /E /I .trae\skills\* %USERPROFILE%\.trae\skills\
-
-# 或手动复制单个 Skill
-cp -r .trae/skills/功能开发 ~/.trae/skills/
-```
-
-### 4. 运行功能型 Skill 示例
-
-```bash
-# 验证 Skill 结构
-python scripts/validate-skills.py
-
-# 运行 COROS 下载器示例
-python .trae/skills/coros-activity-downloader/scripts/download_coros.py --count 10
-```
-
-## 开发新 Skill
-
-查看 [Skill 开发指南](docs/SKILL_DEVELOPMENT_GUIDE.md) 了解如何创建自定义 Skill。
-
-### Skill 基本要求
-
-每个 Skill 必须包含：
+在 Trae CN IDE 中输入：
 
 ```
-your-skill-name/
-├── SKILL.md       # Skill 定义（必需）
-├── README.md      # 用户文档（必需）
-└── scripts/       # 执行脚本（至少一个）
-    └── main.py
+/bmad-pilot 添加一个用户认证模块，支持 JWT 和 OAuth2
 ```
 
-### SKILL.md 规范
+Coordinator 将自动编排：仓库扫描 → PRD → 架构 → Sprint 计划 → 开发 → 审查 → 测试。
 
-必须以 YAML frontmatter 开头：
-
-```yaml
----
-name: "skill-name"
-description: "简短描述，50字以内"
----
-```
-
-必须包含以下章节：
-- `## Purpose` - 功能目的
-- `## Prerequisites` - 依赖要求
-- `## Usage` - 使用方法
-- `## Architecture` - 架构说明
-- `## Error Handling` - 错误处理
-
-## 方法论核心概念
-
-### 两类 Skills 的协作
-
-本项目定义了两种类型的 Skills：
-
-**全局 Skills**（方法论）
-- 位于 `~/.trae-cn/skills/`（Trae CN 内置）
-- 提供通用方法论，如 brainstorming、TDD、systematic-debugging
-- 与具体项目无关，可迁移到任何项目
-
-**项目 Skills**（执行器）
-- 位于 `.trae/skills/`（本项目自定义）
-- 绑定当前项目，包含项目特定的业务知识
-- 按标准化流程交付，输出标准化文档
-
-### 协作黄金法则
-
-1. **方法论先行** - 全局 Skill 决定"怎么想"，项目 Skill 决定"怎么做"
-2. **串联叠加** - 两类 Skill 是串联叠加关系，不是互斥替代
-3. **准入门槛** - 项目 Skill 有前置条件，不满足时先回退到上游全局 Skill
-
-### 完整开发流程
+### 4. 单独精炼已有规格
 
 ```
-产品规划 → 需求分析 → 架构设计 → 架构评审 → 任务拆解
-    ↓
-功能开发 → 代码评审 → 测试策略 → 测试执行
-    ↓
-Bug修复 → 回归测试 → 文档更新 → CICD验证 → 自动化发布
+/bmad-refine prd --feature user-auth
 ```
 
-每个阶段都有明确的准入准出规则和验证检查点。
+### 5. Bug 修复
+
+```
+/bmad-fix 登录接口在并发场景下偶发 500 错误
+```
+
+## 核心设计原则
+
+| 原则 | 说明 |
+|------|------|
+| **Rules 先行** | 任何操作前检查规则约束 |
+| **Skills 指导** | 根据任务类型激活对应 Skill |
+| **Subagents 执行** | 复杂任务委派专业代理，主 Agent 仅协调 |
+| **Rules 验证** | 产出必须通过规则检查才可流转 |
+| **长任务优先** | 每阶段封装为长任务，减少 LLM 交互中断 |
+| **证据驱动** | 声称完成必须有验证证据，禁止"应该没问题"式声称 |
+| **Orchestrator 中介** | Subagent 不直接与用户交互，所有问答通过 Coordinator 中转 |
 
 ## 贡献
 
-欢迎提交 Issue 和 Pull Request！
-
-查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解贡献指南。
+欢迎提交 Issue 和 Pull Request！查看 [CONTRIBUTING.md](file:///d:/yecll/Documents/LocalCode/testskills/CONTRIBUTING.md)。
 
 ## 许可证
 
@@ -292,10 +190,11 @@ Bug修复 → 回归测试 → 文档更新 → CICD验证 → 自动化发布
 
 ## 免责声明
 
-本项目中的 Skills 和方法论仅供个人学习和参考。使用这些 Skills 时，请确保遵守相关服务的使用条款。
+本规范与方法论仅供个人学习和参考。使用时请确保遵守相关服务的使用条款。
 
 ## 相关链接
 
 - [Trae IDE 官网](https://www.trae.ai/)
-- [Skill 开发指南](docs/SKILL_DEVELOPMENT_GUIDE.md)
-- [贡献指南](CONTRIBUTING.md)
+- [Skill 开发指南](file:///d:/yecll/Documents/LocalCode/testskills/docs/SKILL_DEVELOPMENT_GUIDE.md)
+- [贡献指南](file:///d:/yecll/Documents/LocalCode/testskills/CONTRIBUTING.md)
+- [代码 Wiki](file:///d:/yecll/Documents/LocalCode/testskills/CODE_WIKI.md)

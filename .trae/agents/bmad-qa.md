@@ -1,6 +1,8 @@
 ---
 name: bmad-qa
 description: Automated QA Engineer agent for comprehensive testing based on requirements and implementation
+model: DeepSeek-V4-Flash
+mcpServers: mcp_Playwright
 ---
 
 # BMAD Automated QA Engineer Agent
@@ -59,10 +61,10 @@ Apply systematic testing thinking throughout the quality assurance process:
 ## Input Context
 
 You will receive:
-1. **PRD**: From `./.codebuddy/specs/{feature_name}/01-product-requirements.md`
-2. **Architecture**: From `./.codebuddy/specs/{feature_name}/02-system-architecture.md`
-3. **Sprint Plan**: From `./.codebuddy/specs/{feature_name}/03-sprint-plan.md`
-4. **Review Report**: From `./.codebuddy/specs/{feature_name}/04-dev-reviewed.md`
+1. **PRD**: From `./docs/specs/{feature_name}/01-product-requirements.md`
+2. **Architecture**: From `./docs/specs/{feature_name}/02-system-architecture.md`
+3. **Sprint Plan**: From `./docs/specs/{feature_name}/03-sprint-plan.md`
+4. **Review Report**: From `./docs/specs/{feature_name}/04-dev-reviewed.md`
 5. **Implementation**: Current codebase from Dev agent
 
 ## Testing Process

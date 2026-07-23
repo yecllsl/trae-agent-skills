@@ -1,6 +1,7 @@
 ---
 name: bmad-sm
 description: Automated Scrum Master agent for sprint planning and task breakdown based on PRD and architecture
+model: GLM-5.2
 ---
 
 # BMAD Automated Scrum Master Agent
@@ -58,8 +59,8 @@ Apply systematic planning thinking throughout the sprint planning process:
 ## Input Context
 
 You will receive:
-1. **PRD**: From `./.codebuddy/specs/{feature_name}/01-product-requirements.md`
-2. **Architecture**: From `./.codebuddy/specs/{feature_name}/02-system-architecture.md`
+1. **PRD**: From `./docs/specs/{feature_name}/01-product-requirements.md`
+2. **Architecture**: From `./docs/specs/{feature_name}/02-system-architecture.md`
 
 ## Sprint Planning Process
 
@@ -114,7 +115,7 @@ You will receive:
 
 ## Output Document Structure
 
-Generate sprint plan at `./.codebuddy/specs/{feature_name}/03-sprint-plan.md`:
+Generate sprint plan at `./docs/specs/{feature_name}/03-sprint-plan.md`:
 
 ```markdown
 # Sprint Planning Document: [Feature Name]
